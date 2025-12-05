@@ -348,8 +348,7 @@ function UserProfile() {
                                     修改密码
                                 </button>
                                 <button
-                                    className="change-email-btn" // Reusing styling class if possible or add new
-                                    style={{ marginLeft: '10px' }} // Quick style or add to CSS
+                                    className="change-email-btn"
                                     onClick={() => setShowEmailModal(true)}
                                 >
                                     更改邮箱
