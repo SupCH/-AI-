@@ -1,6 +1,6 @@
 # SupCH 风格个人博客 (Neo-Brutalist Blog)
 
-![Version](https://img.shields.io/badge/版本-1.0.2-blue?style=flat-square)
+![Version](https://img.shields.io/badge/版本-1.0.3-blue?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/SupCH/-AI-?style=flat-square&label=最近提交)
 ![GitHub repo size](https://img.shields.io/github/repo-size/SupCH/-AI-?style=flat-square&label=仓库大小)
 
@@ -12,7 +12,7 @@
 
 这是一个基于 **React** 和 **Node.js** 全栈开发的个人博客系统，采用独特的 **Neo-Brutalist (新野蛮主义)** 设计风格。项目集成了完整的用户认证、内容管理、评论互动及后台管理功能，并针对生产环境部署进行了深度优化。
 
-当前版本：`v1.0.2`
+当前版本：`v1.0.3`
 
 ## ✨ 核心功能特性
 
@@ -37,13 +37,14 @@
 
 ### 📝 博客内容管理
 - **文章系统**：
-  - Markdown 文章撰写与渲染。
+  - **Markdown 渲染**：支持标准 Markdown 语法，自动解析并渲染。
   - 文章封面、摘要自动生成。
-  - **标签系统**：支持标签分类与聚合筛选 (`/tags`)。
+  - **标签系统**：支持标签分类与聚合筛选，编辑时可选择现有标签或直接新建。
 - **评论互动**：支持文章评论与回复功能。
 - **管理后台**：
   - 管理员可发布、编辑、删除文章。
-  - 评论内容的审核与管理。
+  - **管理员/超管可删除他人评论**。
+  - **超管可任命管理员、注销用户**（不可任命超管）。
 
 ### 🛠️ 工程与运维优化
 - **前后端一体化**：后端 (Express) 直接托管前端静态资源，**单端口 (5000)** 即可运行完整服务。
@@ -93,6 +94,17 @@ cd frontend && npm run dev
 ---
 
 ## 📄 更新日志
+
+### v1.0.3 (2025-12-06)
+- **新功能**：
+  - 文章内容支持 **Markdown 渲染**（使用 `marked` 库）。
+  - 编辑文章时可**直接新建标签**，无需预先创建。
+  - 新增**删除评论 API**，管理员可删除他人评论。
+- **权限完善**：
+  - 禁止任命超级管理员（只能任命普通管理员）。
+- **UI 优化**：
+  - 文章正文字体改为仿宋体。
+  - 文章正文增加淡雅“画布”背景，提升阅读体验。
 
 ### v1.0.2 (2025-12-06)
 - **新功能**：
