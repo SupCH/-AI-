@@ -206,7 +206,8 @@
 }
 
 .edit-profile-btn,
-.change-password-btn {
+.change-password-btn,
+.change-email-btn {
     padding: 0.5rem 1.5rem;
     font-family: var(--font-mono);
     font-size: 0.75rem;
@@ -220,7 +221,8 @@
 }
 
 .edit-profile-btn:hover,
-.change-password-btn:hover {
+.change-password-btn:hover,
+.change-email-btn:hover {
     background-color: var(--acid-green);
     color: var(--neo-black);
 }
@@ -541,7 +543,6 @@
 
     to {
         transform: translateY(0);
-        opacity: 1;
     }
 }
 
