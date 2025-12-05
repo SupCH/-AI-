@@ -1,0 +1,117 @@
+/* Footer - Neo-Brutalist Style */
+.footer {
+    margin-top: auto;
+    background-color: var(--neo-black);
+    color: #fff;
+    padding: 3rem 0;
+    border-top: 8px solid var(--acid-green);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    text-align: center;
+}
+
+@media (min-width: 768px) {
+    .footer-grid {
+        grid-template-columns: 1fr 1fr 1fr;
+        text-align: left;
+    }
+}
+
+/* Brand */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-logo {
+    font-size: 1.5rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--acid-green);
+    margin: 0 0 1rem 0;
+}
+
+.footer-desc {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: #888;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Links */
+.footer-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+}
+
+.footer-links a {
+    color: #aaa;
+    transition: color var(--transition-fast);
+}
+
+.footer-links a:hover {
+    color: var(--hot-pink);
+}
+
+.footer-links a:nth-child(2):hover {
+    color: var(--cyan-pop);
+}
+
+.footer-links a:nth-child(3):hover {
+    color: var(--acid-green);
+}
+
+/* System Time */
+.footer-time {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+@media (min-width: 768px) {
+    .footer-time {
+        align-items: flex-end;
+        text-align: right;
+    }
+}
+
+.time-display {
+    font-family: var(--font-mono);
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #fff;
+}
+
+.time-label {
+    font-size: 0.75rem;
+    color: #666;
+    margin: 0.25rem 0 0 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* Bottom */
+.footer-bottom {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #333;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #666;
+    letter-spacing: 0.05em;
+}

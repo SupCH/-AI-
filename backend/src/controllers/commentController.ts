@@ -1,0 +1,59 @@
+import { Request, Response } from 'express'
+import jwt from 'jsonwebtoken'
+import prisma from '../utils/prisma.js'
+
+export const commentController = {
+    // 创建评论（需要登录）
+    async createComment(req: Request, res: Response) {
+        try {
+            const { postId, content } = req.body
+
+            if (!postId || !content) {
+                return res.status(400).json({ error: '请提供文章 ID 和评论内容' })
+            }
+
+            // 检查文章是否存在
+            const post = await prisma.post.findUnique({
+                where: { id: postId, published: true }
+            })
+
+            if (!post) {
+                return res.status(404).json({ error: '文章不存在' })
+            }
+
+            // 必须登录才能评论
+            const authHeader = req.headers.authorization
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+                return res.status(401).json({ error: '请登录后再评论' })
+            }
+
+            let authorId: number
+            try {
+                const token = authHeader.substring(7)
+                const secret = process.env.JWT_SECRET || 'default-secret'
+                const decoded = jwt.verify(token, secret) as { userId: number }
+                authorId = decoded.userId
+            } catch {
+                return res.status(401).json({ error: '登录已过期，请重新登录' })
+            }
+
+            const comment = await prisma.comment.create({
+                data: {
+                    content,
+                    postId,
+                    authorId
+                },
+                include: {
+                    author: {
+                        select: { id: true, name: true, avatar: true }
+                    }
+                }
+            })
+
+            res.status(201).json(comment)
+        } catch (error) {
+            console.error('创建评论失败:', error)
+            res.status(500).json({ error: '创建评论失败' })
+        }
+    }
+}

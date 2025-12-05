@@ -1,0 +1,277 @@
+/* Home Page - Neo-Brutalist Style */
+.home {
+    padding: 0;
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+@media (min-width: 768px) {
+    .hero {
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+}
+
+/* Hero Badge */
+.hero-badge {
+    display: inline-block;
+    background-color: var(--neo-black);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    padding: 0.25rem 0.75rem;
+    margin-bottom: 1rem;
+    border: 2px solid transparent;
+    transition: border-color var(--transition-fast);
+}
+
+.hero-badge:hover {
+    border-color: var(--acid-green);
+}
+
+/* Hero Title with Glitch */
+.hero-title {
+    font-size: 3rem;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .hero-title {
+        font-size: 4.5rem;
+    }
+}
+
+/* 较长的问候语（如日语、韩语）缩小字体 */
+.hero-title.greeting-small .glitch-text {
+    font-size: 2.2rem;
+}
+
+@media (min-width: 768px) {
+    .hero-title.greeting-small .glitch-text {
+        font-size: 3.2rem;
+    }
+}
+
+.hero-subtitle-name {
+    display: block;
+    font-size: 2rem;
+    margin-top: 0.5rem;
+    background: linear-gradient(to right, var(--neo-black), #666);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+@media (min-width: 768px) {
+    .hero-subtitle-name {
+        font-size: 3rem;
+    }
+}
+
+.hero-name {
+    display: inline-block;
+    background-color: var(--hot-pink);
+    color: #fff;
+    -webkit-text-fill-color: #fff;
+    padding: 0 0.5rem;
+    font-style: italic;
+    transform: skewX(-6deg);
+    box-shadow: var(--shadow-hard);
+}
+
+/* Hero Description */
+.hero-desc {
+    font-family: var(--font-mono);
+    font-size: 1.125rem;
+    line-height: 1.6;
+    padding: 0.75rem 1.5rem;
+    margin-bottom: 2rem;
+    background-color: #fff;
+    border: 2px solid var(--neo-black);
+    border-left: 8px solid var(--acid-green);
+    box-shadow: var(--shadow-hard);
+}
+
+@media (min-width: 768px) {
+    .hero-desc {
+        font-size: 1.25rem;
+    }
+}
+
+.highlight {
+    background-color: var(--cyan-pop);
+    padding: 0 0.25rem;
+    border: 1px solid var(--neo-black);
+}
+
+/* Hero Buttons */
+.hero-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* Hero Avatar */
+.hero-avatar {
+    position: relative;
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .hero-avatar {
+        display: block;
+    }
+}
+
+.avatar-bg {
+    position: absolute;
+    inset: 0;
+    background-color: var(--cyan-pop);
+    border: 4px solid var(--neo-black);
+    transform: translate(16px, 16px);
+    transition: transform var(--transition-fast);
+}
+
+.hero-avatar:hover .avatar-bg {
+    transform: translate(8px, 8px);
+}
+
+.avatar-frame {
+    position: relative;
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    padding: 0.5rem;
+    aspect-ratio: 1;
+    overflow: hidden;
+}
+
+.avatar-svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* ===== DIVIDER ===== */
+.section-divider {
+    border: none;
+    border-top: 4px dashed var(--neo-black);
+    margin: 3rem 0;
+}
+
+/* ===== ARTICLES SECTION ===== */
+.articles-section {
+    margin-bottom: 3rem;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    display: inline-block;
+    font-size: 2.5rem;
+    background-color: #fff;
+    padding: 0.5rem 1rem;
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    transform: rotate(-2deg);
+    margin: 0;
+}
+
+.section-link {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-style: wavy;
+    text-underline-offset: 4px;
+}
+
+.section-link:hover {
+    color: var(--hot-pink);
+}
+
+/* Posts Grid */
+.posts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 640px) {
+    .posts-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .posts-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Skeleton Loading */
+.post-skeleton {
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-hard);
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 2px;
+}
+
+.skeleton-header {
+    height: 20px;
+    width: 40%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-title {
+    height: 28px;
+    width: 80%;
+    margin-bottom: 0.75rem;
+}
+
+.skeleton-text {
+    height: 16px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-text.short {
+    width: 60%;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: #fff;
+    border: 4px dashed var(--neo-black);
+    font-family: var(--font-mono);
+    color: #888;
+}

@@ -1,0 +1,93 @@
+import express from 'express'
+import cors from 'cors'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import routes from './routes/index.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const app = express()
+const PORT = process.env.PORT || 5000
+
+// Neo-Brutalist ASCII Art Banner
+const BANNER = `
+╔══════════════════════════════════════════════════════════╗
+║  ██████╗ ███████╗██╗   ██╗   ██╗      ██████╗  ██████╗   ║
+║  ██╔══██╗██╔════╝██║   ██║   ██║     ██╔═══██╗██╔════╝   ║
+║  ██║  ██║█████╗  ██║   ██║   ██║     ██║   ██║██║  ███╗  ║
+║  ██║  ██║██╔══╝  ╚██╗ ██╔╝   ██║     ██║   ██║██║   ██║  ║
+║  ██████╔╝███████╗ ╚████╔╝    ███████╗╚██████╔╝╚██████╔╝  ║
+║  ╚═════╝ ╚══════╝  ╚═══╝     ╚══════╝ ╚═════╝  ╚═════╝   ║
+╠══════════════════════════════════════════════════════════╣
+║  >> NEO-BRUTALIST BLOG API                               ║
+║  >> STATUS: ONLINE                                       ║
+║  >> STYLE: BREAK THE RULES                               ║
+╚══════════════════════════════════════════════════════════╝
+`
+
+// 中间件
+app.use(cors())
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
+
+// 静态文件服务（上传的图片）
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')))
+
+// API 路由
+app.use('/api', routes)
+
+// 健康检查 - Cyber Style
+app.get('/health', (req, res) => {
+    res.json({
+        system: 'DEV.LOG API',
+        status: 'OPERATIONAL',
+        uptime: process.uptime(),
+        timestamp: new Date().toISOString(),
+        message: '// ALL SYSTEMS NOMINAL'
+    })
+})
+
+// 错误处理中间件 - Brutalist Error Messages
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    console.error('// ERROR:', err)
+
+    const status = err.status || 500
+    const errorMessages: Record<number, string> = {
+        400: '// BAD REQUEST: Invalid data packet',
+        401: '// ACCESS DENIED: Authentication required',
+        403: '// FORBIDDEN: Insufficient clearance level',
+        404: '// NOT FOUND: Resource does not exist in database',
+        500: '// SYSTEM ERROR: Internal malfunction detected'
+    }
+
+    res.status(status).json({
+        error: true,
+        code: status,
+        message: errorMessages[status] || '// UNKNOWN ERROR',
+        details: err.message || null,
+        timestamp: new Date().toISOString()
+    })
+})
+
+// 404 处理
+app.use((req: express.Request, res: express.Response) => {
+    res.status(404).json({
+        error: true,
+        code: 404,
+        message: '// ENDPOINT NOT FOUND',
+        path: req.path,
+        suggestion: 'Check /api for available endpoints'
+    })
+})
+
+// 启动服务器
+app.listen(PORT, () => {
+    console.log(BANNER)
+    console.log(`  >> Server running at http://localhost:${PORT}`)
+    console.log(`  >> API Docs: http://localhost:${PORT}/api`)
+    console.log(`  >> Health Check: http://localhost:${PORT}/health`)
+    console.log('')
+})
+
+export default app

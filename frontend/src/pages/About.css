@@ -1,0 +1,231 @@
+/* About Page - Neo-Brutalist Style */
+.about-page {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Contact Section */
+.contact-section {
+    background-color: var(--hot-pink);
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard-deep);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 3rem;
+}
+
+.contact-bg {
+    position: absolute;
+    right: -0.5rem;
+    bottom: -1rem;
+    font-size: 8rem;
+    font-weight: 900;
+    color: #fff;
+    opacity: 0.2;
+    pointer-events: none;
+    line-height: 1;
+}
+
+.contact-title {
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.title-highlight {
+    background-color: var(--neo-black);
+    padding: 0 0.5rem;
+}
+
+/* AI Thanks */
+.ai-thanks {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: #fff;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-left: 4px solid var(--acid-green);
+}
+
+.ai-thanks strong {
+    color: var(--acid-green);
+    font-size: 1.2em;
+}
+
+/* Form */
+.contact-form {
+    position: relative;
+    z-index: 1;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--neo-black);
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid var(--neo-black);
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    outline: none;
+    transition: box-shadow var(--transition-fast);
+}
+
+.form-input:focus {
+    box-shadow: var(--shadow-hard);
+}
+
+.form-input::placeholder {
+    color: #999;
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 1rem;
+    font-family: var(--font-sans);
+    font-size: 1.25rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    background-color: var(--acid-green);
+    color: var(--neo-black);
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.submit-btn:hover {
+    transform: translate(3px, 3px);
+    box-shadow: var(--shadow-hard-hover);
+}
+
+.submit-btn:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+}
+
+.submit-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.submit-btn.submitted {
+    background-color: #22c55e;
+    color: #fff;
+}
+
+/* Skills Section */
+.skills-section {
+    margin-bottom: 3rem;
+}
+
+.skills-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 4px solid var(--neo-black);
+}
+
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skill-tag {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border: 2px solid var(--neo-black);
+    box-shadow: var(--shadow-small);
+}
+
+.skill-tag.tag-green {
+    background-color: var(--acid-green);
+}
+
+.skill-tag.tag-cyan {
+    background-color: var(--cyan-pop);
+}
+
+.skill-tag.tag-pink {
+    background-color: var(--hot-pink);
+    color: #fff;
+}
+
+.skill-tag.tag-yellow {
+    background-color: #fbbf24;
+}
+
+.skill-tag.tag-white {
+    background-color: #fff;
+}
+
+/* Social Section */
+.social-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 700;
+    background-color: #fff;
+    color: var(--neo-black);
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    transition: all var(--transition-fast);
+}
+
+.social-link:hover {
+    transform: translate(3px, 3px);
+    box-shadow: var(--shadow-hard-hover);
+    color: var(--hot-pink);
+}
+
+.social-link:active {
+    transform: translate(5px, 5px);
+    box-shadow: none;
+}
+
+.social-link svg {
+    flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .contact-title {
+        font-size: 1.5rem;
+    }
+
+    .contact-bg {
+        font-size: 5rem;
+    }
+}

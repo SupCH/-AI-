@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的赛博空间 | 拒绝平庸</title>
+    
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- 引入 Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=JetBrains+Mono:wght@400;800&display=swap" rel="stylesheet">
+    
+    <!-- 引入 Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- 配置 Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neo-black': '#1a1a1a',
+                        'neo-white': '#f0f0f0',
+                        'acid-green': '#ccff00',
+                        'hot-pink': '#ff00ff',
+                        'cyan-pop': '#00ffff',
+                        'alert-red': '#ff3333'
+                    },
+                    fontFamily: {
+                        sans: ['"Noto Sans SC"', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    boxShadow: {
+                        'hard': '5px 5px 0px 0px #1a1a1a',
+                        'hard-hover': '2px 2px 0px 0px #1a1a1a',
+                        'hard-deep': '8px 8px 0px 0px #1a1a1a',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* 自定义全局样式 */
+        body {
+            background-color: #f3f4f6;
+            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+            cursor: none; /* 隐藏默认光标 */
+        }
+
+        /* 自定义光标 */
+        .cursor-dot,
+        .cursor-outline {
+            position: fixed;
+            top: 0;
+            left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .cursor-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #1a1a1a;
+        }
+
+        .cursor-outline {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #1a1a1a;
+            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        }
+
+        body:hover .cursor-outline.hovered {
+            width: 60px;
+            height: 60px;
+            background-color: rgba(204, 255, 0, 0.5);
+            border-color: transparent;
+            mix-blend-mode: difference;
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-left: 3px solid #1a1a1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+            border: 2px solid #f0f0f0;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff00ff;
+        }
+
+        /* 打字机光标闪烁 */
+        .cursor-blink {
+            animation: blink 1s step-end infinite;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 跑马灯动画 */
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .marquee-content {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* 故障效果文字 (Glitch) */
+        .glitch-wrapper {
+            position: relative;
+        }
+        .glitch-text::before,
+        .glitch-text::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch-text::before {
+            left: 2px;
+            text-shadow: -1px 0 #ff00ff;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch-text::after {
+            left: -2px;
+            text-shadow: -1px 0 #00ffff;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+        @keyframes glitch-anim {
+            0% { clip: rect(10px, 9999px, 30px, 0); }
+            20% { clip: rect(80px, 9999px, 100px, 0); }
+            40% { clip: rect(10px, 9999px, 50px, 0); }
+            60% { clip: rect(90px, 9999px, 100px, 0); }
+            80% { clip: rect(30px, 9999px, 60px, 0); }
+            100% { clip: rect(50px, 9999px, 80px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(60px, 9999px, 90px, 0); }
+            20% { clip: rect(10px, 9999px, 40px, 0); }
+            40% { clip: rect(80px, 9999px, 120px, 0); }
+            60% { clip: rect(20px, 9999px, 60px, 0); }
+            80% { clip: rect(90px, 9999px, 100px, 0); }
+            100% { clip: rect(30px, 9999px, 70px, 0); }
+        }
+        
+        .card-hover:active {
+            transform: translate(5px, 5px);
+            box-shadow: none !important;
+        }
+    </style>
+</head>
+<body class="text-neo-black font-sans selection:bg-hot-pink selection:text-white overflow-x-hidden">
+
+    <!-- 自定义光标元素 -->
+    <div class="cursor-dot hidden md:block"></div>
+    <div class="cursor-outline hidden md:block"></div>
+
+    <!-- 顶部跑马灯 -->
+    <div class="w-full bg-neo-black text-acid-green font-mono py-2 border-b-4 border-neo-black marquee-container z-50 relative">
+        <div class="marquee-content text-sm font-bold tracking-widest uppercase">
+            // CODE IS POETRY // BREAK THE RULES // DESIGN WITH SOUL // WELCOME TO MY MIND PALACE // 保持饥渴 保持愚蠢 // SYSTEM READY // 
+            // CODE IS POETRY // BREAK THE RULES // DESIGN WITH SOUL // WELCOME TO MY MIND PALACE // 保持饥渴 保持愚蠢 // SYSTEM READY // 
+        </div>
+    </div>
+
+    <!-- 导航栏 -->
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b-4 border-neo-black px-4 py-4 md:px-8 flex justify-between items-center">
+        <div class="text-2xl font-black italic tracking-tighter bg-acid-green px-2 border-2 border-neo-black shadow-hard hover-trigger" data-cursor="hover">
+            DEV.LOG
+        </div>
+        <div class="hidden md:flex gap-6 font-mono font-bold text-lg">
+            <a href="#home" class="hover:text-hot-pink hover:underline decoration-4 decoration-black underline-offset-4 transition-all hover-trigger" data-cursor="hover">主页</a>
+            <a href="#articles" class="hover:text-hot-pink hover:underline decoration-4 decoration-black underline-offset-4 transition-all hover-trigger" data-cursor="hover">文章</a>
+            <a href="#projects" class="hover:text-hot-pink hover:underline decoration-4 decoration-black underline-offset-4 transition-all hover-trigger" data-cursor="hover">项目</a>
+            <a href="#contact" class="hover:text-hot-pink hover:underline decoration-4 decoration-black underline-offset-4 transition-all hover-trigger" data-cursor="hover">联系</a>
+        </div>
+        <button class="md:hidden p-2 border-2 border-neo-black shadow-hard bg-white active:shadow-none active:translate-x-[2px] active:translate-y-[2px]" id="menu-btn">
+            <i data-lucide="menu"></i>
+        </button>
+    </nav>
+
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="fixed inset-0 bg-acid-green z-30 transform translate-x-full transition-transform duration-300 flex flex-col justify-center items-center gap-8 text-3xl font-black border-l-4 border-neo-black">
+        <button id="close-menu" class="absolute top-6 right-6 p-2 border-2 border-neo-black bg-white shadow-hard">
+            <i data-lucide="x"></i>
+        </button>
+        <a href="#home" class="mobile-link hover:text-white hover:bg-black px-4 py-2">主页</a>
+        <a href="#articles" class="mobile-link hover:text-white hover:bg-black px-4 py-2">文章</a>
+        <a href="#projects" class="mobile-link hover:text-white hover:bg-black px-4 py-2">项目</a>
+        <a href="#contact" class="mobile-link hover:text-white hover:bg-black px-4 py-2">联系</a>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="max-w-6xl mx-auto px-4 py-12 md:px-8">
+
+        <!-- 英雄区域 (Hero) -->
+        <section id="home" class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-24 items-center">
+            <div class="md:col-span-8">
+                <div class="inline-block bg-neo-black text-white px-3 py-1 font-mono text-sm mb-4 border-2 border-transparent hover:border-acid-green transition-colors">
+                    # FULLSTACK DEVELOPER
+                </div>
+                <h1 class="text-6xl md:text-8xl font-black leading-tight mb-6 glitch-wrapper">
+                    <span class="glitch-text relative block" data-text="HELLO, WORLD.">HELLO, WORLD.</span>
+                    <span class="text-4xl md:text-6xl block mt-2 text-transparent bg-clip-text bg-gradient-to-r from-neo-black to-gray-600">我是 <span class="bg-hot-pink text-white px-2 italic transform -skew-x-12 inline-block shadow-hard">极客阿宅</span></span>
+                </h1>
+                <p class="text-xl md:text-2xl font-mono border-l-8 border-acid-green pl-6 py-2 mb-8 bg-white shadow-hard border-2 border-neo-black">
+                    这里没有极简主义。<br>
+                    这里只有代码、混乱的想法和<span class="bg-cyan-pop px-1 border border-black">绝对的真实</span>。
+                </p>
+                <div class="flex gap-4">
+                    <a href="#contact" class="px-8 py-4 bg-acid-green border-4 border-neo-black font-bold text-xl shadow-hard hover:shadow-hard-hover hover:translate-x-[3px] hover:translate-y-[3px] transition-all flex items-center gap-2 hover-trigger card-hover" data-cursor="hover">
+                        <i data-lucide="terminal-square"></i> 开始联络
+                    </a>
+                    <a href="https://github.com" target="_blank" class="px-8 py-4 bg-white border-4 border-neo-black font-bold text-xl shadow-hard hover:shadow-hard-hover hover:translate-x-[3px] hover:translate-y-[3px] transition-all flex items-center gap-2 hover-trigger card-hover" data-cursor="hover">
+                        <i data-lucide="github"></i> GITHUB
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 个人头像/插图区域 -->
+            <div class="md:col-span-4 relative group">
+                <div class="absolute inset-0 bg-cyan-pop border-4 border-neo-black translate-x-4 translate-y-4 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform"></div>
+                <div class="relative bg-white border-4 border-neo-black p-2 aspect-square flex items-center justify-center overflow-hidden">
+                   <!-- 使用SVG生成的极客头像 -->
+                   <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
+                        <rect width="100%" height="100%" fill="#f0f0f0"/>
+                        <!-- 像素风格脸部 -->
+                        <rect x="50" y="50" width="100" height="100" fill="#ffcc00" stroke="#1a1a1a" stroke-width="4"/>
+                        <!-- 墨镜 -->
+                        <rect x="40" y="80" width="120" height="30" fill="#1a1a1a"/>
+                        <rect x="50" y="85" width="20" height="10" fill="#ff00ff"/>
+                        <rect x="130" y="85" width="20" height="10" fill="#00ffff"/>
+                        <!-- 嘴巴 -->
+                        <path d="M 70 120 Q 100 140 130 120" stroke="#1a1a1a" stroke-width="4" fill="none"/>
+                        <!-- 装饰 -->
+                        <circle cx="160" cy="40" r="10" fill="#ff3333" stroke="#1a1a1a" stroke-width="3"/>
+                        <path d="M 20 160 L 40 180 M 20 180 L 40 160" stroke="#1a1a1a" stroke-width="4"/>
+                   </svg>
+                </div>
+            </div>
+        </section>
+
+        <hr class="border-t-4 border-neo-black my-16 border-dashed">
+
+        <!-- 文章列表 (Articles) -->
+        <section id="articles" class="mb-24">
+            <div class="flex justify-between items-end mb-12">
+                <h2 class="text-5xl font-black bg-white inline-block px-4 border-4 border-neo-black shadow-hard transform -rotate-2">
+                    最近想法
+                </h2>
+                <a href="#" class="font-mono font-bold underline decoration-wavy hover:text-hot-pink">查看归档 -></a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="blog-container">
+                <!-- 博客文章将通过 JS 动态插入 -->
+            </div>
+        </section>
+
+        <!-- 项目展示 (Projects) -->
+        <section id="projects" class="mb-24">
+             <div class="mb-12 text-right">
+                <h2 class="text-5xl font-black bg-acid-green inline-block px-4 border-4 border-neo-black shadow-hard transform rotate-1">
+                    疯狂实验
+                </h2>
+            </div>
+
+            <div class="flex flex-col gap-12">
+                <!-- 项目 1 -->
+                <div class="bg-white border-4 border-neo-black shadow-hard-deep p-0 group hover-trigger" data-cursor="hover">
+                    <div class="h-12 bg-neo-black flex items-center justify-between px-4">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 border border-white"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 border border-white"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 border border-white"></div>
+                        </div>
+                        <span class="text-white font-mono text-sm">project_01.exe</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2">
+                        <div class="p-8 border-b-4 md:border-b-0 md:border-r-4 border-neo-black bg-gray-100 flex items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTEgMWgydjJIMUMxeiIgZmlsbD0iIzAwMDAwMCIgZmlsbC1vcGFjaXR5PSIwLjEiLz48L3N2Zz4=')] opacity-20"></div>
+                            <i data-lucide="gamepad-2" class="w-32 h-32 text-neo-black opacity-80 group-hover:scale-110 transition-transform duration-300"></i>
+                        </div>
+                        <div class="p-8 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-3xl font-black mb-4">复古游戏引擎</h3>
+                                <p class="font-mono mb-4 text-gray-700">一个基于 HTML5 Canvas 的简易游戏引擎，致敬 8-bit 时代。</p>
+                                <div class="flex gap-2 flex-wrap mb-6">
+                                    <span class="bg-cyan-pop border-2 border-neo-black px-2 py-1 text-xs font-bold">TypeScript</span>
+                                    <span class="bg-hot-pink text-white border-2 border-neo-black px-2 py-1 text-xs font-bold">WebGL</span>
+                                </div>
+                            </div>
+                            <button class="self-start px-6 py-2 bg-neo-black text-white font-bold hover:bg-acid-green hover:text-neo-black border-2 border-transparent hover:border-neo-black transition-colors card-hover">
+                                查看代码
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                 <!-- 项目 2 -->
+                 <div class="bg-white border-4 border-neo-black shadow-hard-deep p-0 group hover-trigger" data-cursor="hover">
+                    <div class="h-12 bg-neo-black flex items-center justify-between px-4">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 border border-white"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 border border-white"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 border border-white"></div>
+                        </div>
+                        <span class="text-white font-mono text-sm">project_ai_art.py</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2">
+                         <div class="p-8 flex flex-col justify-between order-2 md:order-1">
+                            <div>
+                                <h3 class="text-3xl font-black mb-4">AI 生成艺术画廊</h3>
+                                <p class="font-mono mb-4 text-gray-700">探索生成对抗网络在抽象艺术中的边界，随机生成的数字梦境。</p>
+                                <div class="flex gap-2 flex-wrap mb-6">
+                                    <span class="bg-acid-green border-2 border-neo-black px-2 py-1 text-xs font-bold">Python</span>
+                                    <span class="bg-gray-200 border-2 border-neo-black px-2 py-1 text-xs font-bold">PyTorch</span>
+                                </div>
+                            </div>
+                            <button class="self-start px-6 py-2 bg-neo-black text-white font-bold hover:bg-cyan-pop hover:text-neo-black border-2 border-transparent hover:border-neo-black transition-colors card-hover">
+                                进入画廊
+                            </button>
+                        </div>
+                        <div class="p-8 border-b-4 md:border-b-0 md:border-l-4 border-neo-black bg-gray-100 flex items-center justify-center relative overflow-hidden order-1 md:order-2">
+                            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMiIgZmlsbD0iIzAwMDAwMCIgZmlsbC1vcGFjaXR5PSIwLjIiLz48L3N2Zz4=')] opacity-30"></div>
+                            <i data-lucide="cpu" class="w-32 h-32 text-neo-black opacity-80 group-hover:rotate-12 transition-transform duration-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 联系我 (Contact) -->
+        <section id="contact" class="max-w-3xl mx-auto bg-hot-pink border-4 border-neo-black shadow-hard-deep p-8 relative overflow-hidden">
+             <!-- 背景装饰字 -->
+             <div class="absolute -right-10 -bottom-10 text-9xl font-black text-white opacity-20 pointer-events-none select-none">
+                MAIL
+            </div>
+
+            <h2 class="text-4xl font-black text-white mb-8 text-shadow-sm uppercase">
+                <span class="bg-neo-black px-2">想聊聊？</span> 发送信号
+            </h2>
+            
+            <form id="contact-form" class="space-y-6 relative z-10">
+                <div>
+                    <label class="block font-mono font-bold text-neo-black mb-2 border-l-4 border-neo-black pl-2">你的代号</label>
+                    <input type="text" class="w-full bg-white border-4 border-neo-black p-3 focus:outline-none focus:shadow-hard transition-shadow font-mono" placeholder="Neo">
+                </div>
+                <div>
+                    <label class="block font-mono font-bold text-neo-black mb-2 border-l-4 border-neo-black pl-2">加密信道 (Email)</label>
+                    <input type="email" class="w-full bg-white border-4 border-neo-black p-3 focus:outline-none focus:shadow-hard transition-shadow font-mono" placeholder="neo@matrix.com">
+                </div>
+                <div>
+                    <label class="block font-mono font-bold text-neo-black mb-2 border-l-4 border-neo-black pl-2">消息内容</label>
+                    <textarea rows="4" class="w-full bg-white border-4 border-neo-black p-3 focus:outline-none focus:shadow-hard transition-shadow font-mono" placeholder="Wake up..."></textarea>
+                </div>
+                <button type="submit" class="w-full bg-acid-green text-neo-black font-black text-xl py-4 border-4 border-neo-black shadow-hard hover:shadow-hard-hover hover:translate-x-[3px] hover:translate-y-[3px] transition-all uppercase card-hover">
+                    发送数据包
+                </button>
+            </form>
+        </section>
+
+    </main>
+
+    <!-- 底部 (Footer) -->
+    <footer class="bg-neo-black text-white py-12 border-t-8 border-acid-green mt-24">
+        <div class="max-w-6xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+            <div>
+                <h4 class="text-2xl font-black italic text-acid-green mb-4">DEV.LOG</h4>
+                <p class="font-mono text-gray-400 text-sm">
+                    Build with ❤️ and ☕.<br>
+                    No cookies. No tracking.<br>
+                    Just raw HTML & CSS.
+                </p>
+            </div>
+            <div class="flex flex-col gap-2 font-mono">
+                <a href="#" class="hover:text-hot-pink transition-colors">>> Twitter / X</a>
+                <a href="#" class="hover:text-cyan-pop transition-colors">>> Instagram</a>
+                <a href="#" class="hover:text-acid-green transition-colors">>> RSS Feed</a>
+            </div>
+            <div class="flex items-center justify-center md:justify-end">
+                 <div class="text-right">
+                    <p class="font-bold text-4xl font-mono" id="time-display">00:00</p>
+                    <p class="text-xs text-gray-500 mt-1">SYSTEM TIME</p>
+                 </div>
+            </div>
+        </div>
+        <div class="text-center mt-12 font-mono text-xs text-gray-600">
+            © 2024 MY BRUTALIST BLOG. ALL RIGHTS RESERVED.
+        </div>
+    </footer>
+
+    <!-- 自定义弹窗 (Toast) -->
+    <div id="toast" class="fixed bottom-8 right-8 bg-white border-4 border-neo-black shadow-hard p-4 transform translate-y-32 transition-transform duration-300 z-50 flex items-center gap-4">
+        <div class="bg-green-500 text-white p-2 border-2 border-neo-black rounded-sm">
+            <i data-lucide="check"></i>
+        </div>
+        <div>
+            <h4 class="font-bold">传输成功</h4>
+            <p class="text-sm font-mono">我会尽快回复你。</p>
+        </div>
+    </div>
+
+    <script>
+        // 初始化 Lucide 图标
+        lucide.createIcons();
+
+        // 博客数据
+        const posts = [
+            {
+                category: "Tech",
+                date: "2023-10-24",
+                title: "为什么我放弃了 React 转投原生 JS",
+                excerpt: "在追求框架便利性的同时，我们是否失去了对底层原理的掌控？这是一次回归本源的尝试...",
+                color: "bg-acid-green"
+            },
+            {
+                category: "Life",
+                date: "2023-11-02",
+                title: "数字游民的第 365 天",
+                excerpt: "没有固定的办公室，只有咖啡馆的噪音和不稳定的 Wi-Fi。这真的是理想生活吗？",
+                color: "bg-cyan-pop"
+            },
+            {
+                category: "Design",
+                date: "2023-11-15",
+                title: "新野兽派设计的崛起",
+                excerpt: "丑陋？粗糙？不，这是对过度精致化互联网的反叛。让我们聊聊这种充满力量的美学。",
+                color: "bg-hot-pink"
+            },
+            {
+                category: "Code",
+                date: "2023-12-01",
+                title: "Vim：从入门到放弃再到离不开",
+                excerpt: "HJKL 不仅仅是按键，它们是一种生活方式。如何配置你的 .vimrc 才能像黑客一样编码。",
+                color: "bg-white"
+            },
+             {
+                category: "Music",
+                date: "2023-12-10",
+                title: "Synthwave 合成器波歌单推荐",
+                excerpt: "戴上耳机，在这个霓虹闪烁的夜晚，让模拟信号的波形带你回到 80 年代。",
+                color: "bg-yellow-400"
+            },
+        ];
+
+        // 渲染博客文章
+        const blogContainer = document.getElementById('blog-container');
+        
+        posts.forEach((post, index) => {
+            const article = document.createElement('article');
+            article.className = `bg-white border-4 border-neo-black p-6 flex flex-col justify-between shadow-hard hover:shadow-hard-hover hover:translate-x-[3px] hover:translate-y-[3px] transition-all hover-trigger card-hover group h-full`;
+            article.setAttribute('data-cursor', 'hover');
+            
+            // 随机给一些卡片加上倾斜效果
+            const rotation = index % 2 === 0 ? 'rotate-1' : '-rotate-1';
+            
+            article.innerHTML = `
+                <div>
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="${post.color} border-2 border-neo-black px-2 py-1 text-xs font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">${post.category}</span>
+                        <span class="font-mono text-xs text-gray-500">${post.date}</span>
+                    </div>
+                    <h3 class="text-2xl font-black mb-3 leading-tight group-hover:underline decoration-4 underline-offset-4 decoration-acid-green">${post.title}</h3>
+                    <p class="font-mono text-sm text-gray-600 mb-6 leading-relaxed border-l-2 border-gray-200 pl-3">
+                        ${post.excerpt}
+                    </p>
+                </div>
+                <a href="#" class="inline-flex items-center font-bold text-neo-black group-hover:gap-2 transition-all">
+                    阅读全文 <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                </a>
+            `;
+            blogContainer.appendChild(article);
+        });
+        
+        // 重新初始化图标因为我们添加了新 DOM
+        lucide.createIcons();
+
+        // 自定义光标逻辑
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+        
+        // 只有在非触摸设备上启用自定义光标
+        if (window.matchMedia("(pointer: fine)").matches) {
+            window.addEventListener('mousemove', (e) => {
+                const posX = e.clientX;
+                const posY = e.clientY;
+
+                // Dot 跟随鼠标，无延迟
+                cursorDot.style.left = `${posX}px`;
+                cursorDot.style.top = `${posY}px`;
+
+                // Outline 跟随鼠标，有动画
+                cursorOutline.animate({
+                    left: `${posX}px`,
+                    top: `${posY}px`
+                }, { duration: 500, fill: "forwards" });
+            });
+
+            // 悬停效果
+            const hoverTriggers = document.querySelectorAll('.hover-trigger');
+            hoverTriggers.forEach(trigger => {
+                trigger.addEventListener('mouseenter', () => {
+                    cursorOutline.classList.add('hovered');
+                });
+                trigger.addEventListener('mouseleave', () => {
+                    cursorOutline.classList.remove('hovered');
+                });
+            });
+        } else {
+            // 触摸设备恢复默认光标并隐藏自定义光标
+            document.body.style.cursor = 'auto';
+        }
+
+        // 移动端菜单逻辑
+        const menuBtn = document.getElementById('menu-btn');
+        const closeMenu = document.getElementById('close-menu');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        function toggleMenu() {
+            mobileMenu.classList.toggle('translate-x-full');
+            document.body.classList.toggle('overflow-hidden');
+        }
+
+        menuBtn.addEventListener('click', toggleMenu);
+        closeMenu.addEventListener('click', toggleMenu);
+        mobileLinks.forEach(link => link.addEventListener('click', toggleMenu));
+
+        // 表单提交模拟
+        const contactForm = document.getElementById('contact-form');
+        const toast = document.getElementById('toast');
+
+        contactForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            // 模拟发送
+            const btn = contactForm.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "发送中...";
+            btn.disabled = true;
+
+            setTimeout(() => {
+                btn.innerText = "已发送";
+                btn.classList.add('bg-gray-300', 'text-gray-500');
+                
+                // 显示 Toast
+                toast.classList.remove('translate-y-32');
+                
+                setTimeout(() => {
+                    toast.classList.add('translate-y-32');
+                    btn.innerText = originalText;
+                    btn.disabled = false;
+                    btn.classList.remove('bg-gray-300', 'text-gray-500');
+                    contactForm.reset();
+                }, 3000);
+            }, 1000);
+        });
+
+        // 实时时间更新
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { hour12: false });
+            document.getElementById('time-display').textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+    </script>
+</body>
+</html>

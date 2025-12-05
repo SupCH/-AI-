@@ -1,0 +1,200 @@
+/* Admin Posts - Neo-Brutalist Style */
+.admin-posts {
+    padding: 0;
+}
+
+/* Header */
+.posts-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 4px solid var(--neo-black);
+}
+
+.posts-title {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.title-prefix {
+    color: var(--acid-green);
+}
+
+.filter-badge {
+    display: inline-block;
+    font-size: 0.875rem;
+    background-color: var(--hot-pink);
+    color: #fff;
+    padding: 0.25rem 0.5rem;
+    margin-left: 0.75rem;
+    border: 2px solid var(--neo-black);
+}
+
+/* 筛选按钮栏 */
+.filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.filter-btn {
+    padding: 0.5rem 1rem;
+    font-weight: 700;
+    font-size: 0.875rem;
+    background-color: #fff;
+    color: var(--neo-black);
+    border: 2px solid var(--neo-black);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.filter-btn:hover {
+    background-color: #f5f5f5;
+}
+
+.filter-btn.active {
+    background-color: var(--neo-black);
+    color: #fff;
+}
+
+/* Table Wrapper */
+.posts-table-wrapper {
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    overflow-x: auto;
+}
+
+.posts-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.posts-table th,
+.posts-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.posts-table th {
+    background-color: var(--neo-black);
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.posts-table tbody tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* Title Cell */
+.post-title-cell {
+    max-width: 300px;
+}
+
+.post-title-cell a {
+    font-weight: 700;
+    color: var(--neo-black);
+}
+
+.post-title-cell a:hover {
+    color: var(--hot-pink);
+}
+
+/* Status Badge */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border: 2px solid var(--neo-black);
+}
+
+.status-published {
+    background-color: var(--acid-green);
+    color: var(--neo-black);
+}
+
+.status-draft {
+    background-color: #eee;
+    color: #666;
+}
+
+/* Count Cell */
+.count-cell {
+    font-family: var(--font-mono);
+    text-align: center;
+}
+
+/* Date Cell */
+.date-cell {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: #888;
+}
+
+/* Actions */
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border: 2px solid var(--neo-black);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.action-btn.edit {
+    background-color: var(--cyan-pop);
+    color: var(--neo-black);
+}
+
+.action-btn.edit:hover {
+    background-color: var(--neo-black);
+    color: #fff;
+}
+
+.action-btn.delete {
+    background-color: #fff;
+    color: var(--alert-red);
+}
+
+.action-btn.delete:hover {
+    background-color: var(--alert-red);
+    color: #fff;
+}
+
+/* Empty State */
+.empty-cell {
+    text-align: center;
+    font-family: var(--font-mono);
+    color: #888;
+    padding: 3rem 1rem !important;
+}
+
+/* Skeleton */
+.skeleton {
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

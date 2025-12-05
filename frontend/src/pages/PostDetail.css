@@ -1,0 +1,351 @@
+/* PostDetail - Neo-Brutalist Style */
+.post-detail {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Skeleton Loading */
+.skeleton-wrapper {
+    padding: 2rem;
+}
+
+.skeleton {
+    background: linear-gradient(90deg, #eee 25%, #f5f5f5 50%, #eee 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+.skeleton-title {
+    height: 48px;
+    width: 80%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-meta {
+    height: 20px;
+    width: 40%;
+    margin-bottom: 2rem;
+}
+
+.skeleton-content {
+    height: 400px;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Error State */
+.error-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+}
+
+.error-state h2 {
+    font-family: var(--font-mono);
+    color: var(--alert-red);
+    margin-bottom: 2rem;
+}
+
+/* Post Header */
+.post-header {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 4px solid var(--neo-black);
+}
+
+.post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.post-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    background-color: var(--acid-green);
+    color: var(--neo-black);
+    border: 2px solid var(--neo-black);
+    box-shadow: var(--shadow-small);
+    transition: all var(--transition-fast);
+}
+
+.post-tag:hover {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+}
+
+.post-title {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .post-title {
+        font-size: 3rem;
+    }
+}
+
+.post-meta {
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.post-author {
+    font-weight: 700;
+    color: var(--neo-black);
+    text-decoration: none;
+}
+
+.post-divider {
+    color: var(--neo-black);
+}
+
+/* Post Content */
+.post-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.post-content p {
+    margin-bottom: 1.5rem;
+}
+
+.post-content h2 {
+    font-size: 1.75rem;
+    margin: 2.5rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--neo-black);
+}
+
+.post-content h3 {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem;
+}
+
+.post-content a {
+    color: var(--hot-pink);
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+}
+
+.post-content a:hover {
+    background-color: var(--hot-pink);
+    color: #fff;
+}
+
+.post-content code {
+    font-family: var(--font-mono);
+    background-color: var(--neo-black);
+    color: var(--acid-green);
+    padding: 0.125rem 0.375rem;
+    font-size: 0.875em;
+}
+
+.post-content pre {
+    background-color: var(--neo-black);
+    color: #fff;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    border: 4px solid var(--neo-black);
+    border-left: 8px solid var(--acid-green);
+}
+
+.post-content pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+.post-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    background-color: var(--cyan-pop);
+    border: 2px solid var(--neo-black);
+    border-left: 8px solid var(--neo-black);
+    font-style: italic;
+}
+
+.post-content ul,
+.post-content ol {
+    margin: 1rem 0;
+    padding-left: 2rem;
+}
+
+.post-content li {
+    margin-bottom: 0.5rem;
+}
+
+.post-content img {
+    max-width: 100%;
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    margin: 1.5rem 0;
+}
+
+/* Post Footer */
+.post-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1.5rem 0;
+    border-top: 2px dashed var(--neo-black);
+    margin-bottom: 2rem;
+}
+
+.footer-label {
+    font-weight: 700;
+}
+
+.footer-tag {
+    font-family: var(--font-mono);
+    color: #666;
+    transition: color var(--transition-fast);
+}
+
+.footer-tag:hover {
+    color: var(--hot-pink);
+}
+
+/* Comments Section */
+.comments-section {
+    background-color: var(--hot-pink);
+    border: 4px solid var(--neo-black);
+    padding: 2rem;
+    box-shadow: var(--shadow-hard-deep);
+    position: relative;
+}
+
+.comments-title {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 1.5rem;
+}
+
+.title-bracket {
+    color: var(--neo-black);
+}
+
+/* Comment Form */
+.comment-form {
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-label {
+    display: block;
+    font-weight: 700;
+    color: var(--neo-black);
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid var(--neo-black);
+}
+
+.comment-input {
+    width: 100%;
+    padding: 1rem;
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    resize: vertical;
+}
+
+.comment-input:focus {
+    outline: none;
+    box-shadow: var(--shadow-hard);
+}
+
+/* Comments List */
+.comments-list {
+    margin-top: 2rem;
+}
+
+.no-comments {
+    font-family: var(--font-mono);
+    color: var(--neo-black);
+    text-align: center;
+    padding: 2rem;
+    border: 2px dashed var(--neo-black);
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+.comment-item {
+    background-color: #fff;
+    border: 2px solid var(--neo-black);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.comment-author {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.comment-content {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Login Prompt */
+.login-prompt {
+    padding: 1.5rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 2px dashed var(--neo-black);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-prompt p {
+    font-family: var(--font-mono);
+    color: var(--neo-black);
+    margin: 0;
+}
+
+.login-link {
+    color: var(--hot-pink);
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    transition: all var(--transition-fast);
+}
+
+.login-link:hover {
+    background-color: var(--neo-black);
+    color: var(--acid-green);
+    padding: 0 0.25rem;
+}

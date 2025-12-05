@@ -1,0 +1,70 @@
+// Prisma 数据库模型定义
+// 用于个人博客系统
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// 用户模型
+// 角色: USER, ADMIN, SUPER_ADMIN
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  avatar    String?
+  bio       String?
+  profileBg String?   // 主页背景图片
+  role      String    @default("USER")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  posts     Post[]
+  comments  Comment[]
+}
+
+// 文章模型
+model Post {
+  id         Int       @id @default(autoincrement())
+  title      String
+  slug       String    @unique
+  content    String
+  excerpt    String?
+  coverImage String?
+  published  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  
+  authorId   Int?
+  author     User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  comments   Comment[]
+  tags       Tag[]
+}
+
+// 评论模型
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  
+  postId    Int
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  authorId  Int?
+  author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
+}
+
+// 标签模型
+model Tag {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  slug  String @unique
+  
+  posts Post[]
+}
