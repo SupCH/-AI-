@@ -126,6 +126,19 @@ export const authController = {
                 })
             }
 
+            // 检查用户名是否已存在
+            const existingName = await prisma.user.findUnique({
+                where: { name }
+            })
+
+            if (existingName) {
+                return res.status(400).json({
+                    error: true,
+                    message: '// NAME TAIKEN',
+                    details: 'This username is already taken, please choose another one'
+                })
+            }
+
             // 加密密码
             const hashedPassword = await bcrypt.hash(password, 10)
 

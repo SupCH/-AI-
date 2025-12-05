@@ -159,6 +159,15 @@ export const userController = {
                 return res.status(400).json({ error: '用户名不能为空' })
             }
 
+            // 检查用户名是否被占用
+            const existingName = await prisma.user.findUnique({
+                where: { name: name.trim() }
+            })
+
+            if (existingName && existingName.id !== req.userId) {
+                return res.status(400).json({ error: '该用户名已被使用' })
+            }
+
             const user = await prisma.user.update({
                 where: { id: req.userId },
                 data: {
