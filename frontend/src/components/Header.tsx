@@ -109,7 +109,7 @@ function Header({ isAdmin = false }: HeaderProps) {
                         {!isAdmin && (
                             user ? (
                                 <div className="auth-buttons">
-                                    <Link to={`/user/${user.id}`} className="nav-btn nav-btn-profile hover-trigger">
+                                    <Link to={`/user/${user.userId}`} className="nav-btn nav-btn-profile hover-trigger">
                                         我的主页
                                     </Link>
                                     <Link to="/admin" className="nav-btn nav-btn-admin hover-trigger">
