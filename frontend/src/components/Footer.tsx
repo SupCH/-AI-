@@ -35,7 +35,7 @@ function Footer() {
                         <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover-trigger">
                             &gt;&gt; Twitter / X
                         </a>
-                        <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover-trigger">
+                        <a href="https://github.com/SupCH/-AI-" target="_blank" rel="noopener noreferrer" className="hover-trigger">
                             &gt;&gt; GitHub
                         </a>
                         <a href="/rss" className="hover-trigger">
