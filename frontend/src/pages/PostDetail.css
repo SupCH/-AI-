@@ -121,6 +121,7 @@
 
 /* Post Content */
 .post-content {
+    font-family: "FangSong", "仿宋", "STFangsong", serif;
     font-size: 1.125rem;
     line-height: 1.8;
     margin-bottom: 2rem;
