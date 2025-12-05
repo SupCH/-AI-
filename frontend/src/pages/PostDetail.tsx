@@ -77,6 +77,12 @@ function PostDetail() {
         }
     }
 
+    // 解析 Markdown 内容 - 必须在所有条件返回之前调用 Hook
+    const parsedContent = useMemo(() => {
+        if (!post) return ''
+        return marked.parse(post.content) as string
+    }, [post])
+
     if (loading) {
         return (
             <div className="post-page-layout">
@@ -111,11 +117,6 @@ function PostDetail() {
     }
 
     const formattedDate = new Date(post.createdAt).toLocaleDateString('en-CA')
-
-    // 解析 Markdown 内容
-    const parsedContent = useMemo(() => {
-        return marked.parse(post.content) as string
-    }, [post.content])
 
     return (
         <div className="post-page-layout">
