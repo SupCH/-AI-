@@ -64,7 +64,7 @@ export const authController = {
 
             const secret = process.env.JWT_SECRET || 'default-secret'
             const token = jwt.sign(
-                { userId: user.id },
+                { userId: user.id, role: user.role },
                 secret,
                 { expiresIn: '7d' }
             )
@@ -154,7 +154,7 @@ export const authController = {
             // 生成 token
             const secret = process.env.JWT_SECRET || 'default-secret'
             const token = jwt.sign(
-                { userId: user.id },
+                { userId: user.id, role: user.role },
                 secret,
                 { expiresIn: '7d' }
             )
@@ -167,7 +167,8 @@ export const authController = {
                     id: user.id,
                     email: user.email,
                     name: user.name,
-                    avatar: user.avatar
+                    avatar: user.avatar,
+                    role: user.role
                 }
             })
         } catch (error) {
