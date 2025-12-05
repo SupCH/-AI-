@@ -1,132 +1,35 @@
-# DEV.LOG 个人博客系统
+# 项目优化与修复总结 (v1.0.1)
 
-一个 Neo-Brutalist 风格的全栈个人博客系统，使用 React + Express + SQLite 构建。
+本次会话主要解决了环境配置、生产部署、功能缺陷及用户体验优化等一系列问题。以下是详细变更清单：
 
-![Neo-Brutalist Style](https://img.shields.io/badge/Style-Neo--Brutalist-ccff00)
-![React](https://img.shields.io/badge/React-18-61dafb)
-![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6)
+## 1. 环境与部署修复
+### 端口与启动管理
+- **新增** `关闭端口.bat`：一键清理占用 3000/5000 端口的进程。
+- **修复** `启动博客.bat`：将前端启动命令从 `npx serve` 改为 `npm run dev`，确保 `vite.config.ts` 中的代理配置生效，解决了 API 请求返回 HTML 的问题。
 
-## ✨ 功能特性
+### 生产环境支持 (Formal Environment)
+- **后端静态托管**：修改 `backend/src/index.ts`，使其能直接托管前端构建文件 (`frontend/dist`)。
+    - **效果**：现在只需启动后端 (端口 5000)，即可访问完整的网站（页面 + API）。
+    - **解决**：彻底解决了 FRP 或 Nginx 代理配置不当导致的 API 跨域或 404 问题。
+- **数据库连接**：安装 `dotenv` 并在入口文件显式加载，修复了在非开发环境下无法读取 `.env` 导致连不上数据库的问题。
 
-- 📝 文章管理（发布、编辑、删除、Markdown 支持）
-- 🏷️ 标签分类系统
-- 💬 用户评论功能
-- 🔐 JWT 认证 + 多角色权限
-- 🛡️ 请求限流 + 输入验证
-- 🎨 Neo-Brutalist 暗色/亮色主题
-- 📱 完整的移动端响应式设计
-- 🎲 随机文章漫游
-- 🔍 全文搜索
+### 域名访问
+- **诊断**：确认了 FRP 双隧道配置问题（3000 端口只有页面无 API，5000 端口全功能）。
+- **建议**：使用指向 5000 端口的域名 (`bblog.crazzy.cn`) 获得最佳体验。
 
-## 🛠️ 技术栈
+## 2. 功能修复 (Bug Fixes)
+### 修改密码功能
+- **后端修复** (`backend/src/controllers/userController.ts`)：
+    - 将 `bcryptjs` 的导入方式从动态导入改为**静态导入**，修复了生产环境下“服务暂不可用 (500 Error)”的崩溃问题。
+- **前端优化** (`frontend/src/pages/UserProfile.tsx`)：
+    - 修复了硬编码的错误提示。现在会显示后端返回的具体错误（如“原密码错误”、“两次输入不一致”等），而不是模糊的“服务不可用”。
 
-| 层级 | 技术 |
-|------|------|
-| **前端** | React 18 + TypeScript + Vite |
-| **后端** | Node.js + Express + TypeScript |
-| **数据库** | SQLite + Prisma ORM |
-| **样式** | Vanilla CSS + CSS Variables |
-| **安全** | express-rate-limit + express-validator |
+## 3. 用户体验优化 (UX)
+### 登出逻辑
+- **修改**：用户点击“退出登录”后，现在会跳转到**首页 (`/`)**，而不是登录页。
+- **自动化**：修改密码成功后，系统会自动弹出提示并**自动登出**，强制用户使用新密码重新登录，增强安全性。
 
-## 📁 项目结构
-
-```
-├── frontend/           # 前端项目
-│   ├── src/
-│   │   ├── components/    # React 组件
-│   │   ├── pages/         # 页面组件
-│   │   ├── services/      # API 服务
-│   │   └── styles/        # CSS 样式
-│   └── package.json
-├── backend/            # 后端项目
-│   ├── src/
-│   │   ├── controllers/   # 控制器
-│   │   ├── routes/        # 路由
-│   │   ├── middleware/    # 中间件（认证、限流、验证）
-│   │   └── utils/         # 工具函数
-│   ├── prisma/            # 数据库模型
-│   └── package.json
-└── docs/               # 文档
-```
-
-## 🚀 快速开始
-
-### 环境要求
-
-- Node.js 18+
-- npm 或 pnpm
-
-### 安装依赖
-
-```bash
-# 后端
-cd backend
-npm install
-
-# 前端
-cd frontend
-npm install
-```
-
-### 配置环境变量
-
-```bash
-cd backend
-cp .env.example .env
-# 编辑 .env 文件，设置 JWT_SECRET 等配置
-```
-
-### 初始化数据库
-
-```bash
-cd backend
-
-# 生成 Prisma 客户端
-npm run db:generate
-
-# 创建数据库表
-npm run db:push
-
-# 初始化示例数据
-npm run db:seed
-```
-
-### 启动开发服务器
-
-```bash
-# 后端（端口 5000）
-cd backend
-npm run dev
-
-# 前端（端口 3000）
-cd frontend
-npm run dev
-```
-
-访问 http://localhost:3000 查看博客
-
-## 👤 用户角色
-
-| 角色 | 权限 |
-|------|------|
-| USER | 浏览、评论、个人资料管理 |
-| ADMIN | + 文章管理、标签管理、文件上传 |
-| SUPER_ADMIN | + 用户管理、角色分配 |
-
-## 📚 文档
-
-- [API 文档](docs/api.md)
-- [部署指南](docs/deployment.md)
-- [FRP 内网穿透](docs/frp-deployment.md)
-- [Git 使用指南](docs/git-guide.md)
-
-## 🔒 安全特性
-
-- JWT Token 认证
-- 请求频率限制（登录 5次/15分钟，API 100次/15分钟）
-- 输入验证与 XSS 防护
-- 密码 bcrypt 加密
-
-## 📄 许可证
-
-MIT License
+## 4. 版本控制
+- **Git 初始化**：初始化了仓库，创建了 `.gitignore`。
+- **代码提交**：完成了首次完整提交 (Commit: `Version 1.0.1`)。
+- **远程配置**：添加了 GitHub 远程仓库地址 `origin`。
