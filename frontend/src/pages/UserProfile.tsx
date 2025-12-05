@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getUserProfile, updateProfile, uploadAvatar, uploadProfileBg, getCurrentUser } from '../services/api'
+import { getUserProfile, updateProfile, uploadAvatar, uploadProfileBg, getCurrentUser, changePassword } from '../services/api'
 import NotFound from './NotFound'
 import './UserProfile.css'
 
@@ -53,6 +53,14 @@ function UserProfile() {
     const [editName, setEditName] = useState('')
     const [editBio, setEditBio] = useState('')
     const [saving, setSaving] = useState(false)
+
+    // 密码修改状态
+    const [showPasswordModal, setShowPasswordModal] = useState(false)
+    const [oldPassword, setOldPassword] = useState('')
+    const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+    const [passwordError, setPasswordError] = useState('')
+    const [passwordSaving, setPasswordSaving] = useState(false)
 
     const avatarInputRef = useRef<HTMLInputElement>(null)
     const bgInputRef = useRef<HTMLInputElement>(null)
@@ -115,6 +123,45 @@ function UserProfile() {
             setUser(prev => prev ? { ...prev, profileBg: result.profileBg } : null)
         } catch (error) {
             console.error('上传背景失败:', error)
+        }
+    }
+
+    const handleChangePassword = async () => {
+        setPasswordError('')
+
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            setPasswordError('请填写所有密码字段')
+            return
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError('两次输入的新密码不一致')
+            return
+        }
+
+        if (newPassword.length < 6) {
+            setPasswordError('新密码至少6个字符')
+            return
+        }
+
+        if (!/^(?=.*[a-zA-Z])(?=.*\d)/.test(newPassword)) {
+            setPasswordError('新密码必须包含字母和数字')
+            return
+        }
+
+        setPasswordSaving(true)
+        try {
+            await changePassword(oldPassword, newPassword, confirmPassword)
+            setShowPasswordModal(false)
+            setOldPassword('')
+            setNewPassword('')
+            setConfirmPassword('')
+            alert('密码修改成功！')
+        } catch (error: any) {
+            console.error('密码修改失败:', error)
+            setPasswordError('原密码错误或服务暂不可用')
+        } finally {
+            setPasswordSaving(false)
         }
     }
 
@@ -247,12 +294,20 @@ function UserProfile() {
                         </h1>
                         {user.bio && <p className="profile-bio">{user.bio}</p>}
                         {showOwnerControls && (
-                            <button
-                                className="edit-profile-btn"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                编辑资料
-                            </button>
+                            <div className="profile-actions">
+                                <button
+                                    className="edit-profile-btn"
+                                    onClick={() => setIsEditing(true)}
+                                >
+                                    编辑资料
+                                </button>
+                                <button
+                                    className="change-password-btn"
+                                    onClick={() => setShowPasswordModal(true)}
+                                >
+                                    修改密码
+                                </button>
+                            </div>
                         )}
                     </>
                 )}
@@ -346,6 +401,82 @@ function UserProfile() {
                     </div>
                 )}
             </section>
+
+            {/* Password Change Modal */}
+            {showPasswordModal && (
+                <div className="password-modal-overlay" onClick={() => setShowPasswordModal(false)}>
+                    <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+                        <h3 className="modal-title">
+                            <span className="title-bracket">[</span>
+                            修改密码
+                            <span className="title-bracket">]</span>
+                        </h3>
+
+                        {passwordError && (
+                            <div className="password-error">
+                                // ERROR: {passwordError}
+                            </div>
+                        )}
+
+                        <div className="password-form">
+                            <div className="form-group">
+                                <label className="form-label">原密码</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    value={oldPassword}
+                                    onChange={(e) => setOldPassword(e.target.value)}
+                                    placeholder="请输入原密码"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">新密码</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="至少6位，包含字母和数字"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label">确认新密码</label>
+                                <input
+                                    type="password"
+                                    className="form-input"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="再次输入新密码"
+                                />
+                            </div>
+
+                            <div className="modal-actions">
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={handleChangePassword}
+                                    disabled={passwordSaving}
+                                >
+                                    {passwordSaving ? '修改中...' : '确认修改'}
+                                </button>
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => {
+                                        setShowPasswordModal(false)
+                                        setOldPassword('')
+                                        setNewPassword('')
+                                        setConfirmPassword('')
+                                        setPasswordError('')
+                                    }}
+                                >
+                                    取消
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

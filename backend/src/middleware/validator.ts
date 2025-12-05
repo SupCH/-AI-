@@ -187,3 +187,24 @@ export const paginationValidation = [
         .isInt({ min: 1, max: 100 }).withMessage('每页数量必须是 1-100 之间的整数'),
     handleValidationErrors
 ]
+
+// ========== 密码修改验证规则 ==========
+
+export const changePasswordValidation = [
+    body('oldPassword')
+        .notEmpty().withMessage('原密码不能为空')
+        .isLength({ min: 6 }).withMessage('原密码至少 6 个字符'),
+    body('newPassword')
+        .notEmpty().withMessage('新密码不能为空')
+        .isLength({ min: 6, max: 100 }).withMessage('新密码长度应为 6-100 个字符')
+        .matches(/^(?=.*[a-zA-Z])(?=.*\d)/).withMessage('新密码必须包含字母和数字'),
+    body('confirmPassword')
+        .notEmpty().withMessage('确认密码不能为空')
+        .custom((value, { req }) => {
+            if (value !== req.body.newPassword) {
+                throw new Error('两次输入的密码不一致')
+            }
+            return true
+        }),
+    handleValidationErrors
+]

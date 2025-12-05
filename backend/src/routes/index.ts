@@ -19,7 +19,8 @@ import {
     idParamValidation,
     slugParamValidation,
     searchValidation,
-    paginationValidation
+    paginationValidation,
+    changePasswordValidation
 } from '../middleware/validator.js'
 
 const router = Router()
@@ -80,6 +81,7 @@ router.post('/auth/register', authLimiter, registerValidation, authController.re
 router.put('/user/profile', authMiddleware, updateProfileValidation, userController.updateProfile)
 router.post('/user/avatar', authMiddleware, upload.single('file'), userController.uploadAvatar)
 router.post('/user/background', authMiddleware, upload.single('file'), userController.uploadProfileBg)
+router.put('/user/password', authMiddleware, changePasswordValidation, userController.changePassword)
 
 // 管理接口（需要 ADMIN 或 SUPER_ADMIN）
 router.get('/admin/stats', authMiddleware, requireAdmin, adminController.getStats)

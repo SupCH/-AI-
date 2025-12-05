@@ -240,6 +240,68 @@ export const userController = {
             console.error('上传背景失败:', error)
             res.status(500).json({ error: '上传背景失败' })
         }
+    },
+
+    // 修改密码 (需登录，只能修改自己)
+    async changePassword(req: AuthRequest, res: Response) {
+        try {
+            const { oldPassword, newPassword, confirmPassword } = req.body
+
+            // 验证新密码一致性
+            if (newPassword !== confirmPassword) {
+                return res.status(400).json({
+                    error: true,
+                    message: '// PASSWORD MISMATCH',
+                    details: '两次输入的新密码不一致'
+                })
+            }
+
+            // 获取当前用户
+            const user = await prisma.user.findUnique({
+                where: { id: req.userId }
+            })
+
+            if (!user) {
+                return res.status(404).json({
+                    error: true,
+                    message: '// USER NOT FOUND',
+                    details: '用户不存在'
+                })
+            }
+
+            // 验证原密码
+            const bcrypt = await import('bcryptjs')
+            const isValidPassword = await bcrypt.compare(oldPassword, user.password)
+
+            if (!isValidPassword) {
+                return res.status(401).json({
+                    error: true,
+                    message: '// ACCESS DENIED',
+                    details: '原密码错误'
+                })
+            }
+
+            // 加密新密码并更新
+            const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+            await prisma.user.update({
+                where: { id: req.userId },
+                data: { password: hashedPassword }
+            })
+
+            res.json({
+                success: true,
+                message: '// PASSWORD UPDATED',
+                details: '密码修改成功'
+            })
+        } catch (error) {
+            console.error('// CHANGE PASSWORD ERROR:', error)
+            res.status(500).json({
+                error: true,
+                message: '// SYSTEM MALFUNCTION',
+                details: '密码修改服务暂不可用'
+            })
+        }
     }
 }
 

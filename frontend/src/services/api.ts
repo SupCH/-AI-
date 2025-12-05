@@ -124,6 +124,13 @@ export function logout() {
     window.location.href = '/login'
 }
 
+export async function changePassword(oldPassword: string, newPassword: string, confirmPassword: string) {
+    return request<{ success: boolean; message: string; details: string }>('/user/password', {
+        method: 'PUT',
+        body: JSON.stringify({ oldPassword, newPassword, confirmPassword }),
+    })
+}
+
 export function isAuthenticated() {
     return !!localStorage.getItem('token')
 }
