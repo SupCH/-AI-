@@ -94,8 +94,8 @@ router.get('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, 
 router.post('/admin/posts', authMiddleware, requireAdmin, createPostValidation, adminController.createPost)
 router.put('/admin/posts/:id', authMiddleware, requireAdmin, updatePostValidation, adminController.updatePost)
 router.delete('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, adminController.deletePost)
-router.get('/admin/comments', authMiddleware, requireAdmin, commentController.getComments)
-router.delete('/admin/comments/:id', authMiddleware, requireAdmin, idParamValidation, commentController.deleteComment)
+router.get('/admin/comments', authMiddleware, requireSuperAdmin, commentController.getComments)
+router.delete('/admin/comments/:id', authMiddleware, requireSuperAdmin, idParamValidation, commentController.deleteComment)
 router.post('/admin/upload', authMiddleware, requireAdmin, upload.single('file'), adminController.uploadFile)
 
 // 用户管理接口（仅 SUPER_ADMIN）

@@ -50,11 +50,11 @@ function Header({ isAdmin = false }: HeaderProps) {
     const adminLinks = [
         { to: '/admin', label: '仪表盘' },
         { to: '/admin/posts', label: '文章管理' },
-        { to: '/admin/comments', label: '评论管理' },
     ]
 
-    // 超级管理员才能看到用户管理
+    // 超级管理员才能看到评论管理和用户管理
     if (user?.role === 'SUPER_ADMIN') {
+        adminLinks.push({ to: '/admin/comments', label: '评论管理' })
         adminLinks.push({ to: '/admin/users', label: '用户管理' })
     }
 
