@@ -29,8 +29,8 @@ function Skeleton({
                         key={i}
                         className="skeleton skeleton-text"
                         style={{
-                            width: i === lines - 1 ? '60%' : '100%',
-                            ...style
+                            ...style,
+                            width: width ?? (i === lines - 1 ? '60%' : '100%'),
                         }}
                     />
                 ))}

@@ -14,12 +14,6 @@ interface User {
     }
 }
 
-const ROLE_LABELS: Record<string, string> = {
-    USER: '普通用户',
-    ADMIN: '管理员',
-    SUPER_ADMIN: '超级管理员'
-}
-
 const ROLE_COLORS: Record<string, string> = {
     USER: 'role-user',
     ADMIN: 'role-admin',
