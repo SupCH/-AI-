@@ -97,6 +97,11 @@ export const userController = {
                 return res.status(400).json({ error: '// 无效角色: 无效的角色值' })
             }
 
+            // 不能设置为超级管理员
+            if (role === 'SUPER_ADMIN') {
+                return res.status(400).json({ error: '// 禁止操作: 不能任命超级管理员' })
+            }
+
             // 不能更改自己的角色
             if (parseInt(id) === req.userId) {
                 return res.status(400).json({ error: '// 禁止操作: 不能更改自己的角色' })

@@ -55,5 +55,30 @@ export const commentController = {
             console.error('创建评论失败:', error)
             res.status(500).json({ error: '创建评论失败' })
         }
+    },
+
+    // 删除评论（需要 ADMIN+ 权限，由路由层控制）
+    async deleteComment(req: Request, res: Response) {
+        try {
+            const id = parseInt(req.params.id)
+
+            // 检查评论是否存在
+            const comment = await prisma.comment.findUnique({
+                where: { id }
+            })
+
+            if (!comment) {
+                return res.status(404).json({ error: '评论不存在' })
+            }
+
+            await prisma.comment.delete({
+                where: { id }
+            })
+
+            res.json({ success: true, message: '评论已删除' })
+        } catch (error) {
+            console.error('删除评论失败:', error)
+            res.status(500).json({ error: '删除评论失败' })
+        }
     }
 }
