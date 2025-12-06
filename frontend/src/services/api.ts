@@ -222,6 +222,27 @@ export async function deletePost(id: number) {
     })
 }
 
+// 批量创建文章
+export async function batchCreatePosts(posts: Array<{
+    title: string
+    slug: string
+    content: string
+    excerpt?: string
+    published: boolean
+    isPublic?: boolean
+    tagIds?: number[]
+}>) {
+    return request<{
+        success: boolean
+        message: string
+        created: any[]
+        errors?: Array<{ title: string; error: string }>
+    }>('/admin/posts/batch', {
+        method: 'POST',
+        body: JSON.stringify({ posts }),
+    })
+}
+
 export async function uploadImage(file: File) {
     const formData = new FormData()
     formData.append('file', file)

@@ -237,6 +237,25 @@ DELETE /api/comments/:id
 
 ---
 
+### IP 检测
+
+#### 获取用户 IP 和地理位置
+```
+GET /api/ip
+```
+
+**响应**:
+```json
+{
+  "ip": "117.36.6.24",
+  "location": "中国 陕西省 西安市"
+}
+```
+
+**说明**: 返回用户的公网 IP 地址和中文地理位置信息
+
+---
+
 ### 用户主页
 
 #### 获取用户公开主页
@@ -489,6 +508,44 @@ DELETE /api/admin/posts/:id
 ```
 
 **说明**: 软删除，设置 `isDeleted: true`
+
+---
+
+#### 批量创建文章
+```
+POST /api/admin/posts/batch
+```
+
+**请求体**:
+```json
+{
+  "posts": [
+    {
+      "title": "文章标题",
+      "slug": "article-slug",
+      "content": "Markdown 内容",
+      "excerpt": "摘要（可选，自动截取）",
+      "published": true,
+      "isPublic": true,
+      "tagIds": [1, 2]
+    }
+  ]
+}
+```
+
+**响应**:
+```json
+{
+  "success": true,
+  "message": "成功创建 3 篇文章",
+  "created": [ ... ],
+  "errors": [
+    { "title": "失败的文章", "error": "slug 已存在" }
+  ]
+}
+```
+
+**说明**: 用于批量导入 Markdown 文件，支持一次性创建多篇文章
 
 ---
 

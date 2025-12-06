@@ -75,6 +75,54 @@ router.get('/users/:id', apiLimiter, idParamValidation, userController.getUserPr
 router.post('/comments', apiLimiter, createCommentValidation, commentController.createComment)
 router.delete('/comments/:id', authMiddleware, commentController.deleteOwnComment)
 
+// IP 检测接口
+router.get('/ip', apiLimiter, async (req, res) => {
+    try {
+        // 获取用户真实IP（考虑代理情况）
+        const forwarded = req.headers['x-forwarded-for']
+        const realIp = req.headers['x-real-ip']
+        let clientIp: string = forwarded
+            ? (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : forwarded[0])
+            : (typeof realIp === 'string' ? realIp : req.socket.remoteAddress || '')
+
+        // 去除 IPv6 前缀
+        if (clientIp && clientIp.startsWith('::ffff:')) {
+            clientIp = clientIp.substring(7)
+        }
+
+        // 本地开发环境处理
+        if (clientIp === '::1' || clientIp === '127.0.0.1' || clientIp === 'localhost') {
+            return res.json({
+                ip: clientIp,
+                location: '本地开发环境'
+            })
+        }
+
+        // 调用 ip-api.com 获取地理位置
+        const response = await fetch(`http://ip-api.com/json/${clientIp}?lang=zh-CN&fields=query,country,regionName,city,status`)
+        const data = await response.json() as { status: string; query: string; country: string; regionName: string; city: string }
+
+        if (data.status === 'success') {
+            const locationParts = [data.country, data.regionName, data.city].filter(Boolean)
+            res.json({
+                ip: data.query,
+                location: locationParts.join(' ') || '未知位置'
+            })
+        } else {
+            res.json({
+                ip: clientIp,
+                location: '位置获取失败'
+            })
+        }
+    } catch (error) {
+        console.error('IP检测失败:', error)
+        res.status(500).json({
+            ip: '获取失败',
+            location: '服务异常'
+        })
+    }
+})
+
 // 认证接口
 router.post('/auth/login', authLimiter, loginValidation, authController.login)
 router.post('/auth/register', authLimiter, registerValidation, authController.register)
@@ -93,6 +141,7 @@ router.get('/admin/stats', authMiddleware, requireAdmin, adminController.getStat
 router.get('/admin/posts', authMiddleware, requireAdmin, paginationValidation, adminController.getPosts)
 router.get('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, adminController.getPost)
 router.post('/admin/posts', authMiddleware, requireAdmin, createPostValidation, adminController.createPost)
+router.post('/admin/posts/batch', authMiddleware, requireAdmin, adminController.batchCreatePosts)
 router.put('/admin/posts/:id', authMiddleware, requireAdmin, updatePostValidation, adminController.updatePost)
 router.delete('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, adminController.deletePost)
 router.get('/admin/comments', authMiddleware, requireSuperAdmin, commentController.getComments)

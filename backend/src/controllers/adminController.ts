@@ -110,6 +110,57 @@ export const adminController = {
         }
     },
 
+    // 批量创建文章
+    async batchCreatePosts(req: AuthRequest, res: Response) {
+        try {
+            const { posts } = req.body
+            const authorId = req.userId!
+
+            if (!posts || !Array.isArray(posts) || posts.length === 0) {
+                return res.status(400).json({ error: '请提供要创建的文章列表' })
+            }
+
+            const createdPosts = []
+            const errors = []
+
+            for (const postData of posts) {
+                try {
+                    const post = await prisma.post.create({
+                        data: {
+                            title: postData.title,
+                            slug: postData.slug,
+                            content: postData.content,
+                            excerpt: postData.excerpt || postData.content.substring(0, 200),
+                            coverImage: postData.coverImage || null,
+                            published: postData.published || false,
+                            isPublic: postData.isPublic !== undefined ? postData.isPublic : true,
+                            authorId,
+                            tags: postData.tagIds ? {
+                                connect: postData.tagIds.map((id: number) => ({ id }))
+                            } : undefined
+                        }
+                    })
+                    createdPosts.push(post)
+                } catch (err: any) {
+                    errors.push({
+                        title: postData.title,
+                        error: err.message || '创建失败'
+                    })
+                }
+            }
+
+            res.status(201).json({
+                success: true,
+                message: `成功创建 ${createdPosts.length} 篇文章`,
+                created: createdPosts,
+                errors: errors.length > 0 ? errors : undefined
+            })
+        } catch (error) {
+            console.error('批量创建文章失败:', error)
+            res.status(500).json({ error: '批量创建文章失败' })
+        }
+    },
+
     // 更新文章
     async updatePost(req: AuthRequest, res: Response) {
         try {

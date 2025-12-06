@@ -22,7 +22,7 @@
 
 @media (min-width: 768px) {
     .footer-grid {
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr;
         text-align: left;
     }
 }
@@ -102,6 +102,42 @@
     margin: 0.25rem 0 0 0;
     text-transform: uppercase;
     letter-spacing: 0.1em;
+}
+
+/* IP Info */
+.footer-ip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: var(--font-mono);
+}
+
+@media (min-width: 768px) {
+    .footer-ip {
+        align-items: flex-end;
+        text-align: right;
+    }
+}
+
+.ip-label {
+    font-size: 0.75rem;
+    color: #666;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.ip-address {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0.25rem 0;
+    color: var(--cyan-pop);
+}
+
+.ip-location {
+    font-size: 0.875rem;
+    color: #888;
+    margin: 0;
 }
 
 /* Bottom */
