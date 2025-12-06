@@ -300,6 +300,18 @@ export async function uploadImage(file: File) {
     return response.json()
 }
 
+// AI 生成标签
+export async function generateTags(title: string, content: string) {
+    return request<{
+        suggestedTags: string[]
+        existingMatches: string[]
+        newSuggestions: string[]
+    }>('/admin/generate-tags', {
+        method: 'POST',
+        body: JSON.stringify({ title, content })
+    })
+}
+
 // Dashboard stats
 export async function getDashboardStats() {
     return request<any>('/admin/stats')

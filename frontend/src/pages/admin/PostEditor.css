@@ -605,3 +605,36 @@
     padding: 1rem 1.5rem;
     border-top: 2px solid #eee;
 }
+
+/* AI Generate Tags */
+.ai-tag-btn {
+    background-color: #6366f1;
+    color: #fff;
+    border: 3px solid var(--neo-black);
+}
+
+.ai-tag-btn:hover:not(:disabled) {
+    background-color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+.ai-tag-btn:disabled {
+    background-color: #a5a5a5;
+    cursor: not-allowed;
+}
+
+.suggested-tag-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background-color: #fef3c7;
+    border: 2px solid #f59e0b;
+    color: #92400e;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.suggested-tag-btn:hover {
+    background-color: #f59e0b;
+    color: #fff;
+}

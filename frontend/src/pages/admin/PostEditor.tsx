@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getAdminPost, createPost, updatePost, getTags, createTag, getPostVersions, getPostVersion, rollbackPostVersion } from '../../services/api'
+import { getAdminPost, createPost, updatePost, getTags, createTag, getPostVersions, getPostVersion, rollbackPostVersion, generateTags } from '../../services/api'
 import { marked } from 'marked'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
@@ -70,6 +70,10 @@ function PostEditor() {
 
     // 预览模式状态
     const [previewMode, setPreviewMode] = useState<'edit' | 'split' | 'preview'>('split')
+
+    // AI 生成标签状态
+    const [generatingTags, setGeneratingTags] = useState(false)
+    const [suggestedNewTags, setSuggestedNewTags] = useState<string[]>([])
 
     const autoSaveTimer = useRef<NodeJS.Timeout | null>(null)
     const isInitialLoad = useRef(true)
@@ -278,6 +282,58 @@ function PostEditor() {
             console.error('创建标签失败:', error)
         } finally {
             setCreatingTag(false)
+        }
+    }
+
+    // AI 自动生成标签
+    const handleGenerateTags = async () => {
+        if (!title && !content) {
+            alert('请先填写文章标题或内容')
+            return
+        }
+
+        setGeneratingTags(true)
+        setSuggestedNewTags([])
+
+        try {
+            const result = await generateTags(title, content)
+
+            // 自动选中已存在的标签
+            const matchedTagIds = allTags
+                .filter(tag => result.existingMatches.some(
+                    name => name.toLowerCase() === tag.name.toLowerCase()
+                ))
+                .map(tag => tag.id)
+
+            if (matchedTagIds.length > 0) {
+                setSelectedTags(prev => [...new Set([...prev, ...matchedTagIds])])
+            }
+
+            // 显示建议的新标签
+            if (result.newSuggestions.length > 0) {
+                setSuggestedNewTags(result.newSuggestions)
+            }
+
+            if (result.suggestedTags.length === 0) {
+                alert('无法生成标签，请稍后重试')
+            }
+        } catch (error) {
+            console.error('生成标签失败:', error)
+            alert('生成标签失败，请检查 AI API 配置')
+        } finally {
+            setGeneratingTags(false)
+        }
+    }
+
+    // 快速创建建议的新标签
+    const handleCreateSuggestedTag = async (tagName: string) => {
+        try {
+            const newTag = await createTag(tagName)
+            setAllTags(prev => [...prev, newTag])
+            setSelectedTags(prev => [...prev, newTag.id])
+            setSuggestedNewTags(prev => prev.filter(t => t !== tagName))
+        } catch (error) {
+            console.error('创建标签失败:', error)
         }
     }
 
@@ -648,6 +704,34 @@ function PostEditor() {
                                 {creatingTag ? '创建中...' : '+ 新建'}
                             </button>
                         </div>
+                        <button
+                            type="button"
+                            className="btn btn-primary ai-tag-btn"
+                            onClick={handleGenerateTags}
+                            disabled={generatingTags || (!title && !content)}
+                            style={{ marginTop: '0.75rem', width: '100%' }}
+                        >
+                            {generatingTags ? '🤖 思考中...' : '🤖 AI 生成标签'}
+                        </button>
+                        {suggestedNewTags.length > 0 && (
+                            <div className="suggested-tags" style={{ marginTop: '0.75rem' }}>
+                                <small style={{ display: 'block', marginBottom: '0.5rem', color: '#666' }}>
+                                    建议新标签（点击创建）:
+                                </small>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                    {suggestedNewTags.map(tag => (
+                                        <button
+                                            key={tag}
+                                            type="button"
+                                            className="suggested-tag-btn"
+                                            onClick={() => handleCreateSuggestedTag(tag)}
+                                        >
+                                            + {tag}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* 版本历史卡片 - 仅编辑模式显示 */}

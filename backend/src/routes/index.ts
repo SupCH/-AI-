@@ -150,6 +150,7 @@ router.post('/admin/posts/:id/versions/:versionId/rollback', authMiddleware, req
 router.get('/admin/comments', authMiddleware, requireSuperAdmin, commentController.getComments)
 router.delete('/admin/comments/:id', authMiddleware, requireSuperAdmin, idParamValidation, commentController.deleteComment)
 router.post('/admin/upload', authMiddleware, requireAdmin, upload.single('file'), adminController.uploadFile)
+router.post('/admin/generate-tags', authMiddleware, requireAdmin, adminController.generateTags)
 
 // 用户管理接口（仅 SUPER_ADMIN）
 router.get('/admin/users', authMiddleware, requireSuperAdmin, paginationValidation, userController.getUsers)

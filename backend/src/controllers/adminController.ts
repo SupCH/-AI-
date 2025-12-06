@@ -392,5 +392,97 @@ export const adminController = {
             console.error('上传文件失败:', error)
             res.status(500).json({ error: '上传文件失败' })
         }
+    },
+
+    // AI 自动生成标签
+    async generateTags(req: Request, res: Response) {
+        try {
+            const { title, content } = req.body
+
+            if (!title && !content) {
+                return res.status(400).json({ error: '请提供文章标题或内容' })
+            }
+
+            const apiUrl = process.env.AI_API_URL || 'https://api.gptapi.us/v1/chat/completions'
+            const apiKey = process.env.AI_API_KEY
+
+            if (!apiKey) {
+                return res.status(500).json({ error: 'AI API 未配置' })
+            }
+
+            // 获取现有标签列表
+            const existingTags = await prisma.tag.findMany({
+                select: { name: true }
+            })
+            const tagNames = existingTags.map(t => t.name)
+
+            const prompt = `你是一个博客标签生成助手。根据以下文章内容，生成2-3个最合适的标签。
+
+文章标题: ${title || '无'}
+
+文章内容(前500字):
+${(content || '').substring(0, 500)}
+
+现有标签库: ${tagNames.length > 0 ? tagNames.join(', ') : '暂无标签'}
+
+要求:
+1. 优先使用现有标签库中的标签
+2. 如果现有标签不合适，可以建议新标签
+3. 标签应该简短、准确、有意义
+4. 只返回标签名称，用逗号分隔，不要有其他任何解释文字
+
+请返回2-3个标签:`
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'user', content: prompt }
+                    ],
+                    max_tokens: 100,
+                    temperature: 0.7
+                })
+            })
+
+            if (!response.ok) {
+                const errorData = await response.text()
+                console.error('AI API 错误:', errorData)
+                return res.status(500).json({ error: 'AI 服务暂时不可用' })
+            }
+
+            const data = await response.json() as {
+                choices: Array<{ message: { content: string } }>
+            }
+            const aiResponse = data.choices[0]?.message?.content?.trim() || ''
+
+            // 解析返回的标签
+            const suggestedTags = aiResponse
+                .split(/[,，、]/)
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0 && tag.length < 20)
+                .slice(0, 3)
+
+            // 区分现有标签和建议的新标签
+            const existingMatches = suggestedTags.filter(t =>
+                tagNames.some(name => name.toLowerCase() === t.toLowerCase())
+            )
+            const newSuggestions = suggestedTags.filter(t =>
+                !tagNames.some(name => name.toLowerCase() === t.toLowerCase())
+            )
+
+            res.json({
+                suggestedTags,
+                existingMatches,
+                newSuggestions
+            })
+        } catch (error) {
+            console.error('生成标签失败:', error)
+            res.status(500).json({ error: '生成标签失败' })
+        }
     }
 }
