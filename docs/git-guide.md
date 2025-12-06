@@ -95,7 +95,7 @@ git log --oneline -10
 
 ```bash
 # GitHub
-git remote add origin https://github.com/SupCH/-AI-.git
+git remote add origin https://github.com/SupCH/Neo-Brutalist-AI-.git
 
 # 或 Gitee
 git remote add origin https://gitee.com/你的用户名/风格个人博客.git
@@ -141,7 +141,7 @@ cat ~/.ssh/id_ed25519.pub
 
 然后使用 SSH 地址：
 ```bash
-git remote set-url origin git@github.com:SupCH/-AI-.git
+git remote set-url origin git@github.com:SupCH/Neo-Brutalist-AI-.git
 ```
 
 ---
@@ -253,7 +253,7 @@ git add .
 git commit -m "feat: 初始化博客项目"
 
 # 连接远程并推送
-git remote add origin https://github.com/SupCH/-AI-.git
+git remote add origin https://github.com/SupCH/Neo-Brutalist-AI-.git
 git branch -M main
 git push -u origin main
 ```
