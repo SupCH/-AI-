@@ -60,6 +60,13 @@ export async function getPosts(page = 1, limit = 10) {
     return request<any[]>(`/posts?page=${page}&limit=${limit}`)
 }
 
+export async function recordView(id: number, isNewVisitor: boolean) {
+    return request('/analytics/view', {
+        method: 'POST',
+        body: JSON.stringify({ id, isNewVisitor })
+    })
+}
+
 export async function getPost(slug: string) {
     return request<any>(`/posts/${slug}`)
 }
@@ -318,9 +325,21 @@ export async function generateTags(title: string, content: string) {
     })
 }
 
+// AI 生成摘要
+export async function generateExcerpt(title: string, content: string) {
+    return request<{ excerpt: string }>('/admin/generate-excerpt', {
+        method: 'POST',
+        body: JSON.stringify({ title, content })
+    })
+}
+
 // Dashboard stats
 export async function getDashboardStats() {
     return request<any>('/admin/stats')
+}
+
+export async function getAnalytics() {
+    return request<any[]>('/admin/analytics')
 }
 
 // User management (SUPER_ADMIN only)

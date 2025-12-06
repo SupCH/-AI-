@@ -5,6 +5,7 @@ import { tagController } from '../controllers/tagController.js'
 import { commentController } from '../controllers/commentController.js'
 import { adminController } from '../controllers/adminController.js'
 import { userController } from '../controllers/userController.js'
+import { analyticsController } from '../controllers/analyticsController.js'
 import { authMiddleware, requireAdmin, requireSuperAdmin } from '../middleware/auth.js'
 import { upload } from '../middleware/upload.js'
 import { apiLimiter, authLimiter } from '../middleware/rateLimiter.js'
@@ -74,6 +75,7 @@ router.get('/tags/:slug/posts', apiLimiter, slugParamValidation, tagController.g
 router.get('/users/:id', apiLimiter, idParamValidation, userController.getUserProfile)
 router.post('/comments', apiLimiter, createCommentValidation, commentController.createComment)
 router.delete('/comments/:id', authMiddleware, commentController.deleteOwnComment)
+router.post('/analytics/view', apiLimiter, analyticsController.recordView)
 
 // IP 检测接口
 router.get('/ip', apiLimiter, async (req, res) => {
@@ -138,19 +140,22 @@ router.put('/user/email', authMiddleware, userController.changeEmail)
 
 // 管理接口（需要 ADMIN 或 SUPER_ADMIN）
 router.get('/admin/stats', authMiddleware, requireAdmin, adminController.getStats)
-router.get('/admin/posts', authMiddleware, requireAdmin, paginationValidation, adminController.getPosts)
-router.get('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, adminController.getPost)
-router.post('/admin/posts', authMiddleware, requireAdmin, createPostValidation, adminController.createPost)
+router.get('/admin/analytics', authMiddleware, requireAdmin, analyticsController.getStats)
+// 文章管理 - 所有已登录用户可访问（权限检查在 Controller 中进行）
+router.get('/admin/posts', authMiddleware, paginationValidation, adminController.getPosts)
+router.get('/admin/posts/:id', authMiddleware, idParamValidation, adminController.getPost)
+router.post('/admin/posts', authMiddleware, createPostValidation, adminController.createPost)
 router.post('/admin/posts/batch', authMiddleware, requireAdmin, adminController.batchCreatePosts)
-router.put('/admin/posts/:id', authMiddleware, requireAdmin, updatePostValidation, adminController.updatePost)
-router.delete('/admin/posts/:id', authMiddleware, requireAdmin, idParamValidation, adminController.deletePost)
-router.get('/admin/posts/:id/versions', authMiddleware, requireAdmin, idParamValidation, adminController.getPostVersions)
+router.put('/admin/posts/:id', authMiddleware, updatePostValidation, adminController.updatePost)
+router.delete('/admin/posts/:id', authMiddleware, idParamValidation, adminController.deletePost)
+router.get('/admin/posts/:id/versions', authMiddleware, idParamValidation, adminController.getPostVersions)
 router.get('/admin/posts/:id/versions/:versionId', authMiddleware, requireAdmin, adminController.getPostVersion)
 router.post('/admin/posts/:id/versions/:versionId/rollback', authMiddleware, requireAdmin, adminController.rollbackPostVersion)
 router.get('/admin/comments', authMiddleware, requireSuperAdmin, commentController.getComments)
 router.delete('/admin/comments/:id', authMiddleware, requireSuperAdmin, idParamValidation, commentController.deleteComment)
 router.post('/admin/upload', authMiddleware, requireAdmin, upload.single('file'), adminController.uploadFile)
-router.post('/admin/generate-tags', authMiddleware, requireAdmin, adminController.generateTags)
+router.post('/admin/generate-tags', authMiddleware, adminController.generateTags)
+router.post('/admin/generate-excerpt', authMiddleware, adminController.generateExcerpt)
 router.delete('/admin/tags/:id', authMiddleware, requireAdmin, tagController.deleteTag)
 router.get('/debug-ai', adminController.debugAi)
 

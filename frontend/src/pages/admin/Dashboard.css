@@ -203,3 +203,122 @@
     text-align: center;
     padding: 2rem;
 }
+
+/* Stats Section (New) */
+.stats-section {
+    background-color: #fff;
+    border: 4px solid var(--neo-black);
+    box-shadow: var(--shadow-hard);
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+}
+
+.stats-section .section-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid var(--neo-black);
+    margin: 0;
+}
+
+.stats-section .section-title {
+    font-size: 1.25rem;
+    margin: 0;
+    transform: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    background: none;
+}
+
+.analytics-chart-container {
+    padding: 1.5rem;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+}
+
+.analytics-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    width: 100%;
+    height: 100%;
+    gap: 10px;
+}
+
+.chart-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bar-wrapper {
+    width: 100%;
+    max-width: 60px;
+    height: 100%;
+    background: #f0f0f0;
+    border: 2px solid var(--neo-black);
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    cursor: help;
+}
+
+.bar-fill {
+    width: 100%;
+    background-color: var(--hot-pink);
+    border-top: 2px solid var(--neo-black);
+    transition: height 0.5s ease-out;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.bar-value {
+    color: #fff;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-top: 4px;
+}
+
+.bar-date {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: bold;
+}
+
+/* Line Chart Overlay */
+.analytics-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.analytics-chart-wrapper .analytics-chart {
+    position: relative;
+    z-index: 1;
+}
+
+.line-chart-overlay {
+    position: absolute;
+    top: 10px;
+    left: 5%;
+    width: 90%;
+    height: calc(100% - 50px);
+    z-index: 2;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.line-chart-overlay polyline {
+    filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.5));
+}
+
+.trend-line {
+    opacity: 0.9;
+}

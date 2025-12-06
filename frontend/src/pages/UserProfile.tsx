@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { getUserProfile, updateProfile, uploadAvatar, uploadProfileBg, getCurrentUser, changePassword, changeEmail, logout } from '../services/api'
+import { getUserProfile, updateProfile, uploadAvatar, uploadProfileBg, getCurrentUser, changePassword, changeEmail, logout, deletePost } from '../services/api'
 import NotFound from './NotFound'
 import './UserProfile.css'
 
@@ -389,33 +389,63 @@ function UserProfile() {
                 ) : (
                     <div className="posts-grid">
                         {user.posts.map(post => (
-                            <Link key={post.id} to={`/post/${post.slug}`} className="post-card">
-                                {post.coverImage && (
-                                    <div className="post-cover">
-                                        <img src={post.coverImage} alt={post.title} />
+                            <div key={post.id} className="post-card-wrapper">
+                                <Link to={`/post/${post.slug}`} className="post-card">
+                                    {post.coverImage && (
+                                        <div className="post-cover">
+                                            <img src={post.coverImage} alt={post.title} />
+                                        </div>
+                                    )}
+                                    <div className="post-content">
+                                        <h3 className="post-title">{post.title}</h3>
+                                        {post.excerpt && (
+                                            <p className="post-excerpt">{post.excerpt}</p>
+                                        )}
+                                        <div className="post-meta">
+                                            <span className="post-date">
+                                                {new Date(post.createdAt).toLocaleDateString('en-CA')}
+                                            </span>
+                                            {post.tags.length > 0 && (
+                                                <div className="post-tags">
+                                                    {post.tags.slice(0, 3).map(tag => (
+                                                        <span key={tag.slug} className="post-tag">
+                                                            #{tag.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </Link>
+                                {/* 文章管理按钮 - 仅对文章所有者可见 */}
+                                {showOwnerControls && (
+                                    <div className="post-actions">
+                                        <Link to={`/admin/posts/${post.id}/edit`} className="post-action-btn edit-btn">
+                                            编辑
+                                        </Link>
+                                        <button
+                                            className="post-action-btn delete-btn"
+                                            onClick={async (e) => {
+                                                e.preventDefault()
+                                                if (!confirm('确定要删除这篇文章吗？')) return
+                                                try {
+                                                    await deletePost(post.id)
+                                                    // 从列表中移除
+                                                    setUser(prev => prev ? {
+                                                        ...prev,
+                                                        posts: prev.posts.filter(p => p.id !== post.id),
+                                                        _count: { ...prev._count, posts: prev._count.posts - 1 }
+                                                    } : null)
+                                                } catch (error: any) {
+                                                    alert(error.response?.data?.error || '删除失败')
+                                                }
+                                            }}
+                                        >
+                                            删除
+                                        </button>
                                     </div>
                                 )}
-                                <div className="post-content">
-                                    <h3 className="post-title">{post.title}</h3>
-                                    {post.excerpt && (
-                                        <p className="post-excerpt">{post.excerpt}</p>
-                                    )}
-                                    <div className="post-meta">
-                                        <span className="post-date">
-                                            {new Date(post.createdAt).toLocaleDateString('en-CA')}
-                                        </span>
-                                        {post.tags.length > 0 && (
-                                            <div className="post-tags">
-                                                {post.tags.slice(0, 3).map(tag => (
-                                                    <span key={tag.slug} className="post-tag">
-                                                        #{tag.name}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 )}

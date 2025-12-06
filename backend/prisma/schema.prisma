@@ -39,6 +39,7 @@ model Post {
   published  Boolean   @default(false)
   isPublic   Boolean   @default(true)   // 是否公开，公开文章所有人可见
   isDeleted  Boolean   @default(false)  // 软删除标记
+  views      Int       @default(0)      // 浏览量
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   
@@ -90,4 +91,13 @@ model PostVersion {
   post       Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   
   editorId   Int?     // 编辑者ID
+}
+
+// 每日访问统计
+model DailyStat {
+  id        Int      @id @default(autoincrement())
+  date      String   @unique // 格式 YYYY-MM-DD
+  views     Int      @default(0)
+  visitors  Int      @default(0) // 独立访客数 (简单基于IP/Cookie去重)
+  updatedAt DateTime @updatedAt
 }

@@ -5,7 +5,7 @@ import hljs from 'highlight.js'
 import 'highlight.js/styles/atom-one-dark.css'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
-import { getPost, createComment, isAuthenticated, deleteOwnComment, getCurrentUser } from '../services/api'
+import { getPost, createComment, isAuthenticated, deleteOwnComment, getCurrentUser, recordView } from '../services/api'
 import NotFound from './NotFound'
 import TableOfContents from '../components/TableOfContents'
 import Skeleton from '../components/Skeleton'
@@ -19,6 +19,7 @@ interface PostDetailData {
     coverImage?: string
     createdAt: string
     updatedAt: string
+    views: number
     author: {
         id: number
         name: string
@@ -57,6 +58,17 @@ function PostDetail() {
             try {
                 const data = await getPost(slug)
                 setPost(data)
+
+                // 记录访问 (不阻塞渲染)
+                const today = new Date().toISOString().split('T')[0]
+                const visitedKey = `visited_site_${today}`
+                const isNewVisitor = !localStorage.getItem(visitedKey)
+
+                recordView(data.id, isNewVisitor).then(() => {
+                    if (isNewVisitor) {
+                        localStorage.setItem(visitedKey, 'true')
+                    }
+                }).catch(console.error)
             } catch (error) {
                 console.error('获取文章失败:', error)
             } finally {
@@ -290,7 +302,12 @@ function PostDetail() {
                             <span className="post-author deleted-user">已删除用户</span>
                         )}
                         <span className="post-divider">/</span>
+                        <span className="post-divider">/</span>
                         <time className="post-date">{formattedDate}</time>
+                        <span className="post-divider">/</span>
+                        <span className="post-views">
+                            {post.views} 阅读
+                        </span>
                     </div>
                 </header>
 

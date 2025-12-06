@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getAdminPost, createPost, updatePost, getTags, createTag, deleteTag, getPostVersions, getPostVersion, rollbackPostVersion, generateTags } from '../../services/api'
+import { getAdminPost, createPost, updatePost, getTags, createTag, deleteTag, getPostVersions, getPostVersion, rollbackPostVersion, generateTags, generateExcerpt } from '../../services/api'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
@@ -72,6 +72,7 @@ function PostEditor() {
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [generatingTags, setGeneratingTags] = useState(false)
+    const [generatingExcerpt, setGeneratingExcerpt] = useState(false)
 
     const [selectedVersion, setSelectedVersion] = useState<VersionDetail | null>(null)
     const [showVersionPreview, setShowVersionPreview] = useState(false)
@@ -689,6 +690,27 @@ function PostEditor() {
 
                     <div className="sidebar-card">
                         <h3>文章摘要</h3>
+                        <button
+                            type="button"
+                            className="ai-tag-btn"
+                            onClick={async () => {
+                                if (!content) return
+                                setGeneratingExcerpt(true)
+                                try {
+                                    const result = await generateExcerpt(title, content)
+                                    if (result.excerpt) {
+                                        setExcerpt(result.excerpt)
+                                    }
+                                } catch (error) {
+                                    console.error('生成摘要失败:', error)
+                                } finally {
+                                    setGeneratingExcerpt(false)
+                                }
+                            }}
+                            disabled={generatingExcerpt || !content}
+                        >
+                            {generatingExcerpt ? '✨ 生成中...' : '✨ AI 智能生成'}
+                        </button>
                         <textarea
                             value={excerpt}
                             onChange={(e) => setExcerpt(e.target.value)}

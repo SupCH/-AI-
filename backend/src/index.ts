@@ -12,6 +12,9 @@ const __dirname = path.dirname(__filename)
 const app = express()
 const PORT = process.env.PORT || 5000
 
+// 信任代理（用于正确获取客户端 IP，解决 Vite 代理的 X-Forwarded-For 问题）
+app.set('trust proxy', 1)
+
 // Neo-Brutalist ASCII Art Banner
 const BANNER = `
 ╔══════════════════════════════════════════════════════════╗

@@ -3,6 +3,7 @@ import prisma from '../utils/prisma.js'
 
 interface AuthRequest extends Request {
     userId?: number
+    userRole?: 'USER' | 'ADMIN' | 'SUPER_ADMIN'
 }
 
 export const adminController = {
@@ -39,10 +40,20 @@ export const adminController = {
     // 获取所有文章（管理用）
     async getPosts(req: AuthRequest, res: Response) {
         try {
+            const userId = req.userId!
+            const isAdmin = req.userRole === 'ADMIN' || req.userRole === 'SUPER_ADMIN'
+
+            // 管理员可以看到所有文章，普通用户只能看到自己的
+            const whereClause = isAdmin ? {} : { authorId: userId }
+
             const posts = await prisma.post.findMany({
+                where: whereClause,
                 include: {
                     _count: {
                         select: { comments: true }
+                    },
+                    author: {
+                        select: { id: true, name: true }
                     }
                 },
                 orderBy: { createdAt: 'desc' }
@@ -59,6 +70,8 @@ export const adminController = {
     async getPost(req: AuthRequest, res: Response) {
         try {
             const id = parseInt(req.params.id)
+            const userId = req.userId!
+            const isAdmin = req.userRole === 'ADMIN' || req.userRole === 'SUPER_ADMIN'
 
             const post = await prisma.post.findUnique({
                 where: { id },
@@ -69,6 +82,11 @@ export const adminController = {
 
             if (!post) {
                 return res.status(404).json({ error: '文章不存在' })
+            }
+
+            // 权限检查：普通用户只能查看自己的文章
+            if (!isAdmin && post.authorId !== userId) {
+                return res.status(403).json({ error: '// FORBIDDEN: 您没有权限查看这篇文章' })
             }
 
             res.json(post)
@@ -177,6 +195,13 @@ export const adminController = {
                 return res.status(404).json({ error: '文章不存在' })
             }
 
+            // 权限检查：只有作者本人或管理员可以编辑
+            const isOwner = currentPost.authorId === editorId
+            const isAdmin = req.userRole === 'ADMIN' || req.userRole === 'SUPER_ADMIN'
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: '// FORBIDDEN: 您没有权限编辑这篇文章' })
+            }
+
             // 检查内容是否有变化
             const hasChanges =
                 currentPost.title !== title ||
@@ -248,6 +273,23 @@ export const adminController = {
     async deletePost(req: AuthRequest, res: Response) {
         try {
             const id = parseInt(req.params.id)
+            const userId = req.userId!
+
+            // 获取文章信息
+            const post = await prisma.post.findUnique({
+                where: { id }
+            })
+
+            if (!post) {
+                return res.status(404).json({ error: '文章不存在' })
+            }
+
+            // 权限检查：只有作者本人或管理员可以删除
+            const isOwner = post.authorId === userId
+            const isAdmin = req.userRole === 'ADMIN' || req.userRole === 'SUPER_ADMIN'
+            if (!isOwner && !isAdmin) {
+                return res.status(403).json({ error: '// FORBIDDEN: 您没有权限删除这篇文章' })
+            }
 
             await prisma.post.update({
                 where: { id },
@@ -524,6 +566,93 @@ ${(content || '').substring(0, 500)}
         } catch (error) {
             console.error('生成标签失败:', error)
             res.status(500).json({ error: '生成标签失败' })
+        }
+    },
+
+    // AI 自动生成摘要
+    async generateExcerpt(req: Request, res: Response) {
+        try {
+            const { title, content } = req.body
+
+            if (!content) {
+                return res.status(400).json({ error: '请提供文章内容' })
+            }
+
+            let excerpt = ''
+
+            const apiUrl = process.env.AI_API_URL
+            const apiKey = process.env.AI_API_KEY
+            const model = process.env.AI_MODEL || 'deepseek-chat'
+
+            // 尝试使用 AI API
+            if (apiKey) {
+                try {
+                    const prompt = `你是一个博客文章摘要生成助手。根据以下文章内容，生成一段简洁有吸引力的摘要。
+
+文章标题: ${title || '无'}
+
+文章内容(前1000字):
+${(content || '').substring(0, 1000)}
+
+要求:
+1. 摘要应该在50-150字之间
+2. 摘要应该概括文章的核心内容
+3. 摘要应该有吸引力，让读者想要点击阅读全文
+4. 只返回摘要文本，不要有任何解释或前缀
+
+请返回摘要:`
+
+                    const response = await fetch(apiUrl || 'https://api.gptapi.us/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: 'user', content: prompt }
+                            ],
+                            max_tokens: 200,
+                            temperature: 0.7
+                        })
+                    })
+
+                    if (response.ok) {
+                        const data = await response.json() as {
+                            choices: Array<{ message: { content: string } }>
+                        }
+                        excerpt = data.choices[0]?.message?.content?.trim() || ''
+                    } else {
+                        console.warn('AI API 调用失败, 转为本地生成')
+                    }
+                } catch (e) {
+                    console.error('AI API 异常:', e)
+                }
+            }
+
+            // 如果 AI 生成失败或未配置，使用本地提取
+            if (!excerpt) {
+                // 移除 Markdown 语法
+                const cleanContent = content
+                    .replace(/```[\s\S]*?```/g, '') // 代码块
+                    .replace(/!\[.*?\]\(.*?\)/g, '') // 图片
+                    .replace(/\[.*?\]\(.*?\)/g, '$1') // 链接
+                    .replace(/[#*`>_~]/g, '') // Markdown 符号
+                    .replace(/\n+/g, ' ') // 换行
+                    .trim()
+
+                // 取前150字
+                excerpt = cleanContent.substring(0, 150)
+                if (cleanContent.length > 150) {
+                    excerpt += '...'
+                }
+            }
+
+            res.json({ excerpt })
+        } catch (error) {
+            console.error('生成摘要失败:', error)
+            res.status(500).json({ error: '生成摘要失败' })
         }
     },
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getDashboardStats } from '../../services/api'
+import { getDashboardStats, getAnalytics } from '../../services/api'
 import './Dashboard.css'
 
 interface Stats {
@@ -19,13 +19,18 @@ interface Stats {
 
 function Dashboard() {
     const [stats, setStats] = useState<Stats | null>(null)
+    const [analytics, setAnalytics] = useState<Array<{ date: string, views: number, visitors: number }>>([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                const data = await getDashboardStats()
+                const [data, analyticsData] = await Promise.all([
+                    getDashboardStats(),
+                    getAnalytics()
+                ])
                 setStats(data)
+                setAnalytics(analyticsData || [])
             } catch (error) {
                 console.error('获取统计数据失败:', error)
             } finally {
@@ -68,6 +73,64 @@ function Dashboard() {
                     ))
                 )}
             </div>
+
+            {/* Visitor Stats */}
+            <section className="stats-section">
+                <div className="section-header">
+                    <h2 className="section-title">访问趋势 (近7天)</h2>
+                </div>
+                <div className="analytics-chart-container">
+                    {loading ? (
+                        <div className="skeleton" style={{ height: '200px' }}></div>
+                    ) : analytics.length > 0 ? (
+                        <div className="analytics-chart-wrapper">
+                            <div className="analytics-chart">
+                                {analytics.map(day => {
+                                    const maxViews = Math.max(...analytics.map(d => d.views), 5)
+                                    const heightPercent = Math.max((day.views / maxViews) * 100, 5)
+                                    return (
+                                        <div key={day.date} className="chart-column">
+                                            <div className="bar-wrapper" title={`${day.date}\n浏览量: ${day.views}\n访客数: ${day.visitors}`}>
+                                                <div className="bar-fill" style={{ height: `${heightPercent}%` }}>
+                                                    <span className="bar-value">{day.views}</span>
+                                                </div>
+                                            </div>
+                                            <span className="bar-date">{day.date.slice(5)}</span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                            {/* 折线图叠加层 - 累计增长趋势 */}
+                            <svg className="line-chart-overlay" viewBox="0 0 100 100" preserveAspectRatio="none">
+                                <polyline
+                                    className="trend-line"
+                                    fill="none"
+                                    stroke="#fbbf24"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    points={(() => {
+                                        // 计算累计值
+                                        let cumulative = 0
+                                        const cumulativeData = analytics.map(day => {
+                                            cumulative += day.views
+                                            return cumulative
+                                        })
+                                        const maxCumulative = Math.max(...cumulativeData, 1)
+                                        return cumulativeData.map((value, index) => {
+                                            const x = (index / (analytics.length - 1 || 1)) * 100
+                                            const y = 100 - (value / maxCumulative) * 100
+                                            return `${x},${y}`
+                                        }).join(' ')
+                                    })()}
+                                />
+                            </svg>
+                        </div>
+                    ) : (
+                        <p className="empty-message">// 暂无访问数据</p>
+                    )}
+                </div>
+            </section>
 
             {/* Recent Posts */}
             <section className="recent-section">
