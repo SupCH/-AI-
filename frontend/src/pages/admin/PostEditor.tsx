@@ -72,7 +72,7 @@ function PostEditor() {
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [generatingTags, setGeneratingTags] = useState(false)
-    const [suggestedNewTags, setSuggestedNewTags] = useState<string[]>([])
+
     const [selectedVersion, setSelectedVersion] = useState<VersionDetail | null>(null)
     const [showVersionPreview, setShowVersionPreview] = useState(false)
 
@@ -222,6 +222,14 @@ function PostEditor() {
         if (isEditing) {
             fetchPost()
         }
+
+        // Hide footer for app-like experience
+        const footer = document.querySelector('.footer') as HTMLElement
+        if (footer) footer.style.display = 'none'
+
+        return () => {
+            if (footer) footer.style.display = ''
+        }
     }, [id])
 
     const fetchTags = async () => {
@@ -315,73 +323,76 @@ function PostEditor() {
         }
     }
 
+    const [suggestedTags, setSuggestedTags] = useState<string[]>([])
+
     const handleGenerateTags = async () => {
         if (!title && !content) {
-            alert('请先填写文章标题或内容')
+            // alert('请先填写文章标题或内容') 
+            // Better to show a small toast or non-blocking error, but for now just return
             return
         }
 
         setGeneratingTags(true)
-        setSuggestedNewTags([])
+        setSuggestedTags([])
 
         try {
             const result = await generateTags(title, content)
 
-            // Debug Log
-            console.log('AI Response:', result)
-
-            // 自动选中已存在的标签
-            const matchedTagIds = allTags
-                .filter(tag => result.existingMatches.some(
-                    name => name.toLowerCase() === tag.name.toLowerCase()
-                ))
-                .map(tag => tag.id)
-
-            if (matchedTagIds.length > 0) {
-                setSelectedTags(prev => {
-                    const unique = new Set([...prev, ...matchedTagIds])
-                    return Array.from(unique)
-                })
-            }
-
-            // 处理新建议的标签
-            if (result.newSuggestions && result.newSuggestions.length > 0) {
-                setSuggestedNewTags(result.newSuggestions)
-            }
-
-            // Show summary message
-            const newTagCount = result.newSuggestions?.length || 0
-            const matchedCount = matchedTagIds.length
-
-            let msg = 'AI 标签分析完成！'
-            if (matchedCount > 0) {
-                msg += `\n✅ 自动选中了 ${matchedCount} 个现有标签`
-            }
-
-            if (newTagCount > 0) {
-                msg += `\n🆕 发现 ${newTagCount} 个新标签：${result.newSuggestions.join(', ')}\n(请在下方"建议新标签"区域点击添加)`
-            } else if (matchedCount === 0) {
-                msg += `\n(生成的标签可能不匹配现有标签库，请检查建议列表)`
-            }
-            alert(msg)
+            // Combine all suggestions
+            const allSuggestions = [...result.existingMatches, ...result.newSuggestions]
+            setSuggestedTags(allSuggestions)
 
         } catch (error) {
             console.error('生成标签失败:', error)
-            alert('生成标签失败：' + (error instanceof Error ? error.message : '未知错误'))
         } finally {
             setGeneratingTags(false)
         }
     }
 
-    // 快速创建建议的新标签
-    const handleCreateSuggestedTag = async (tagName: string) => {
-        try {
-            const newTag = await createTag(tagName)
-            setAllTags(prev => [...prev, newTag])
-            setSelectedTags(prev => [...prev, newTag.id])
-            setSuggestedNewTags(prev => prev.filter(t => t !== tagName))
-        } catch (error) {
-            console.error('创建标签失败:', error)
+    // 处理点击建议标签
+    const handleSelectSuggestedTag = async (tagName: string) => {
+        // Check if it's an existing tag
+        const existingTag = allTags.find(t => t.name.toLowerCase() === tagName.toLowerCase())
+
+        let success = false
+
+        if (existingTag) {
+            // Tag exists, select it
+            if (!selectedTags.includes(existingTag.id)) {
+                setSelectedTags(prev => [...prev, existingTag.id])
+            }
+            success = true
+        } else {
+            // It's a new tag, create it first
+            try {
+                const newTag = await createTag(tagName)
+                if (newTag && newTag.id) {
+                    setAllTags(prev => [...prev, newTag])
+                    setSelectedTags(prev => [...prev, newTag.id])
+                    success = true
+                }
+            } catch (error: any) {
+                console.error('创建标签失败:', error)
+                // Check if tag already exists (created by another process)
+                if (error.response?.data?.tag) {
+                    const existingTag = error.response.data.tag
+                    if (!selectedTags.includes(existingTag.id)) {
+                        setSelectedTags(prev => [...prev, existingTag.id])
+                    }
+                    // Add to allTags if not already there
+                    if (!allTags.find(t => t.id === existingTag.id)) {
+                        setAllTags(prev => [...prev, existingTag])
+                    }
+                    success = true
+                } else {
+                    alert(`添加标签 "${tagName}" 失败: ${error.message || '未知错误'}`)
+                }
+            }
+        }
+
+        // Only remove from suggestions if successfully added
+        if (success) {
+            setSuggestedTags(prev => prev.filter(t => t !== tagName))
         }
     }
 
@@ -612,19 +623,6 @@ function PostEditor() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <div className="slug-input-group">
-                            <span className="slug-prefix">/posts/</span>
-                            <input
-                                type="text"
-                                placeholder="url-slug"
-                                value={slug}
-                                onChange={(e) => setSlug(e.target.value)}
-                                className="slug-input"
-                            />
-                        </div>
-                    </div>
-
                     <div className="content-editor-container split">
                         <div className="editor-pane">
                             <textarea
@@ -654,6 +652,19 @@ function PostEditor() {
                 <div className="editor-sidebar">
                     <div className="sidebar-card">
                         <h3>发布设置</h3>
+                        <div className="form-group">
+                            <label style={{ fontSize: '0.75rem', color: '#666', marginBottom: '0.25rem' }}>文章链接</label>
+                            <div className="slug-input-group" style={{ display: 'flex', alignItems: 'center' }}>
+                                <span style={{ fontSize: '0.75rem', color: '#888' }}>/posts/</span>
+                                <input
+                                    type="text"
+                                    placeholder="url-slug"
+                                    value={slug}
+                                    onChange={(e) => setSlug(e.target.value)}
+                                    style={{ flex: 1, padding: '0.25rem 0.5rem', fontSize: '0.875rem', border: '2px solid #ddd' }}
+                                />
+                            </div>
+                        </div>
                         <div className="form-group checkbox-group">
                             <label>
                                 <input
@@ -712,7 +723,7 @@ function PostEditor() {
                             onClick={handleGenerateTags}
                             disabled={generatingTags}
                         >
-                            {generatingTags ? '✨ 分析中...' : '✨ AI 智能标签'}
+                            {generatingTags ? '✨ 分析中...' : '✨ AI 智能生成'}
                         </button>
 
                         <div className="tags-selector">
@@ -736,17 +747,17 @@ function PostEditor() {
                             ))}
                         </div>
 
-                        {suggestedNewTags.length > 0 && (
+                        {suggestedTags.length > 0 && (
                             <div className="suggested-tags-area">
-                                <h4>建议新标签:</h4>
+                                <h4>💡 AI 推荐标签:</h4>
                                 <div className="tags-selector">
-                                    {suggestedNewTags.map(tagName => (
+                                    {suggestedTags.map(tagName => (
                                         <button
                                             key={tagName}
                                             type="button"
                                             className="tag-option tag-suggested"
-                                            onClick={() => handleCreateSuggestedTag(tagName)}
-                                            title="点击创建并选中"
+                                            onClick={() => handleSelectSuggestedTag(tagName)}
+                                            title="点击添加此标签"
                                         >
                                             + {tagName}
                                         </button>

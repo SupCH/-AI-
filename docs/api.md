@@ -613,6 +613,36 @@ POST /api/admin/upload
 
 ---
 
+#### AI 智能标签生成
+```
+POST /api/admin/generate-tags
+```
+> 🔐 需要 ADMIN+ 权限
+
+**请求体**:
+```json
+{
+  "title": "文章标题",
+  "content": "文章内容"
+}
+```
+
+**响应**:
+```json
+{
+  "suggestedTags": ["React", "前端", "JavaScript"],
+  "existingMatches": ["React"],
+  "newSuggestions": ["前端", "JavaScript"]
+}
+```
+
+**说明**: 
+- 优先使用 AI API (如 DeepSeek) 分析文章内容生成标签
+- 若 AI 不可用，自动降级为本地关键词提取算法
+- 返回 2-3 个推荐标签
+
+---
+
 #### 获取所有评论（管理用）
 ```
 GET /api/admin/comments

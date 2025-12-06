@@ -403,21 +403,22 @@ export const adminController = {
                 return res.status(400).json({ error: '请提供文章标题或内容' })
             }
 
-            const apiUrl = process.env.AI_API_URL || 'https://api.gptapi.us/v1/chat/completions'
-            const apiKey = process.env.AI_API_KEY
-            const model = process.env.AI_MODEL || 'deepseek-chat'
-
-            if (!apiKey) {
-                return res.status(500).json({ error: 'AI API 未配置 (AI_API_KEY Missing)' })
-            }
-
             // 获取现有标签列表
             const existingTags = await prisma.tag.findMany({
                 select: { name: true }
             })
             const tagNames = existingTags.map(t => t.name)
 
-            const prompt = `你是一个博客标签生成助手。根据以下文章内容，生成2-3个最合适的标签。
+            let suggestedTags: string[] = []
+
+            const apiUrl = process.env.AI_API_URL
+            const apiKey = process.env.AI_API_KEY
+            const model = process.env.AI_MODEL || 'deepseek-chat'
+
+            // 尝试使用 AI API
+            if (apiKey) {
+                try {
+                    const prompt = `你是一个博客标签生成助手。根据以下文章内容，生成2-3个最合适的标签。
 
 文章标题: ${title || '无'}
 
@@ -434,44 +435,78 @@ ${(content || '').substring(0, 500)}
 
 请返回2-3个标签:`
 
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    model: model,
-                    messages: [
-                        { role: 'user', content: prompt }
-                    ],
-                    max_tokens: 100,
-                    temperature: 0.7
-                })
-            })
+                    const response = await fetch(apiUrl || 'https://api.gptapi.us/v1/chat/completions', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify({
+                            model: model,
+                            messages: [
+                                { role: 'user', content: prompt }
+                            ],
+                            max_tokens: 100,
+                            temperature: 0.7
+                        })
+                    })
 
-            if (!response.ok) {
-                const errorData = await response.text()
-                console.error('AI API 错误:', errorData)
-                try {
-                    const jsonError = JSON.parse(errorData)
-                    return res.status(500).json({ error: `AI API Error: ${jsonError.error?.message || errorData}` })
-                } catch {
-                    return res.status(500).json({ error: `AI API Error: ${errorData}` })
+                    if (response.ok) {
+                        const data = await response.json() as {
+                            choices: Array<{ message: { content: string } }>
+                        }
+                        const aiResponse = data.choices[0]?.message?.content?.trim() || ''
+                        suggestedTags = aiResponse
+                            .split(/[,，、]/)
+                            .map(tag => tag.trim())
+                            .filter(tag => tag.length > 0 && tag.length < 20)
+                            .slice(0, 3)
+                    } else {
+                        console.warn('AI API 调用失败, 转为本地生成')
+                    }
+                } catch (e) {
+                    console.error('AI API 异常:', e)
                 }
             }
 
-            const data = await response.json() as {
-                choices: Array<{ message: { content: string } }>
-            }
-            const aiResponse = data.choices[0]?.message?.content?.trim() || ''
+            // 如果 AI 生成失败或未配置 Key，使用本地关键词提取算法
+            if (suggestedTags.length === 0) {
+                const text = `${title || ''} ${content || ''}`
+                // 简单的分词和频率统计
+                // 1. 移除特殊字符和标点
+                const cleanText = text.replace(/[^\w\u4e00-\u9fa5\s]/g, ' ')
+                // 2. 分词 (按空格或单个汉字，这里简单按空格分，对于中文可能不够精确但可用)
+                // 更好的方式是使用 nodejieba 但为了不增加依赖，我们做简单的两字词提取
 
-            // 解析返回的标签
-            const suggestedTags = aiResponse
-                .split(/[,，、]/)
-                .map(tag => tag.trim())
-                .filter(tag => tag.length > 0 && tag.length < 20)
-                .slice(0, 3)
+                const words: string[] = []
+
+                // 简单的英文分词
+                words.push(...cleanText.split(/\s+/).filter(w => w.length > 3))
+
+                // 简单的中文二字/三字词提取 (滑动窗口)
+                const cnText = text.replace(/[^\u4e00-\u9fa5]/g, '')
+                for (let i = 0; i < cnText.length - 1; i++) {
+                    if (i < cnText.length - 1) words.push(cnText.substr(i, 2))
+                    if (i < cnText.length - 2) words.push(cnText.substr(i, 3))
+                }
+
+                // 词频统计
+                const freq: Record<string, number> = {}
+                words.forEach(w => {
+                    freq[w] = (freq[w] || 0) + 1
+                })
+
+                // 排序并取前3
+                suggestedTags = Object.entries(freq)
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 3)
+                    .map(([w]) => w)
+
+                // 如果实在提取不出，使用默认
+                if (suggestedTags.length === 0) {
+                    suggestedTags = ['生活', '随笔']
+                }
+            }
 
             // 区分现有标签和建议的新标签
             const existingMatches = suggestedTags.filter(t =>

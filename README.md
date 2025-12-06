@@ -1,6 +1,6 @@
 # SupCH 风格个人博客 (Neo-Brutalist Blog)
 
-![Version](https://img.shields.io/badge/版本-1.0.4-blue?style=flat-square)
+![Version](https://img.shields.io/badge/版本-1.0.5-blue?style=flat-square)
 ![GitHub last commit](https://img.shields.io/github/last-commit/SupCH/-AI-?style=flat-square&label=最近提交)
 ![GitHub repo size](https://img.shields.io/github/repo-size/SupCH/-AI-?style=flat-square&label=仓库大小)
 
@@ -12,7 +12,7 @@
 
 这是一个基于 **React** 和 **Node.js** 全栈开发的个人博客系统，采用独特的 **Neo-Brutalist (新野蛮主义)** 设计风格。项目集成了完整的用户认证、内容管理、评论互动及后台管理功能，并针对生产环境部署进行了深度优化。
 
-当前版本：`v1.0.4`
+当前版本：`v1.0.5`
 
 ## ✨ 核心功能特性
 
@@ -40,6 +40,7 @@
   - **Markdown 渲染**：支持标准 Markdown 语法，自动解析并渲染。
   - 文章封面、摘要自动生成。
   - **标签系统**：支持标签分类与聚合筛选，编辑时可选择现有标签或直接新建。
+  - **🆕 AI 智能标签**：一键生成推荐标签，支持 AI API 和本地关键词降级。
 - **评论互动**：
   - 用户可在文章详情页发表评论。
   - **用户可删除自己的评论**，超管可删除任意评论。
@@ -96,6 +97,19 @@ cd frontend && npm run dev
 ---
 
 ## 📄 更新日志
+
+### v1.0.5 (2025-12-06)
+- **新功能**：
+  - **AI 智能标签生成**：编辑文章时点击"AI 智能生成"按钮，自动分析内容推荐 2-3 个标签，支持 AI API (DeepSeek) 和本地关键词降级。
+  - **文章编辑器布局优化**：
+    - Slug 输入框移至侧边栏。
+    - 编辑区/预览区支持独立内部滚动。
+    - 侧边栏支持独立滚动。
+- **UI 优化**：
+  - "编辑"前缀改为深紫色 (`#6d28d9`)，提升可读性。
+  - 已选标签 hover 时保持高亮颜色。
+- **Bug 修复**：
+  - 修复点击推荐标签后标签未被正确添加的问题。
 
 ### v1.0.4 (2025-12-06)
 - **新功能**：
