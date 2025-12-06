@@ -1,0 +1,44 @@
+{
+  "test": "register",
+  "status": 201,
+  "body": {
+    "success": true,
+    "message": "// 用户已创建",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjU3LCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTA0MTY5OCwiZXhwIjoxNzY1NjQ2NDk4fQ._M52-eK8Y8Cp0gLaxFykk14gI2A446NXCvwl56gR5Xs",
+    "user": {
+      "id": 57,
+      "email": "newuser@example.com",
+      "name": "NewUser",
+      "avatar": null,
+      "role": "USER"
+    }
+  }
+}
+---
+{
+  "test": "login_setup_register",
+  "status": 201,
+  "body": {
+    "success": true,
+    "message": "// 用户已创建",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjU5LCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTA0MTY5OCwiZXhwIjoxNzY1NjQ2NDk4fQ.sVWoHjv6S85Xquuco8j6_C6I35QSZG3-FhpwgIO-GRI",
+    "user": {
+      "id": 59,
+      "email": "login@example.com",
+      "name": "LoginUser",
+      "avatar": null,
+      "role": "USER"
+    }
+  }
+}
+---
+{
+  "test": "login",
+  "status": 401,
+  "body": {
+    "error": true,
+    "message": "// 访问拒绝",
+    "details": "认证失败 - 用户不存在"
+  }
+}
+---

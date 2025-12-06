@@ -113,12 +113,14 @@ app.use((req: express.Request, res: express.Response) => {
 })
 
 // 启动服务器
-app.listen(PORT, () => {
-    console.log(BANNER)
-    console.log(`  >> Server running at http://localhost:${PORT}`)
-    console.log(`  >> API Docs: http://localhost:${PORT}/api`)
-    console.log(`  >> Health Check: http://localhost:${PORT}/health`)
-    console.log('')
-})
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(PORT, () => {
+        console.log(BANNER)
+        console.log(`  >> Server running at http://localhost:${PORT}`)
+        console.log(`  >> API Docs: http://localhost:${PORT}/api`)
+        console.log(`  >> Health Check: http://localhost:${PORT}/health`)
+        console.log('')
+    })
+}
 
 export default app

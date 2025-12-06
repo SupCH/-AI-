@@ -1,0 +1,79 @@
+{
+  "test": "1_register",
+  "status": 201,
+  "body": {
+    "success": true,
+    "message": "// 用户已创建",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjU4LCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTA0MTY5OCwiZXhwIjoxNzY1NjQ2NDk4fQ._96opUC67zT1uTDpwcFqk3PMOP8pZK1VJkH_zv1ol38",
+    "user": {
+      "id": 58,
+      "email": "newuser@example.com",
+      "name": "NewUser",
+      "avatar": null,
+      "role": "USER"
+    }
+  }
+}
+---
+{
+  "test": "2_invalid_email",
+  "status": 400,
+  "body": {
+    "error": "输入验证失败",
+    "details": [
+      {
+        "field": "email",
+        "message": "请输入有效的邮箱地址"
+      }
+    ]
+  }
+}
+---
+{
+  "test": "3_duplicate_email",
+  "status": 400,
+  "body": {
+    "error": true,
+    "message": "// 用户已存在",
+    "details": "该邮箱已被注册"
+  }
+}
+---
+{
+  "test": "4_login_success",
+  "status": 200,
+  "body": {
+    "success": true,
+    "message": "// 验证通过",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYyLCJyb2xlIjoiVVNFUiIsImlhdCI6MTc2NTA0MTY5OSwiZXhwIjoxNzY1NjQ2NDk5fQ.JYNy9S18JVfBvWL60fPjX3NusJHCCF67bHiOQhN1nYc",
+    "user": {
+      "id": 62,
+      "email": "loginok@example.com",
+      "name": "LoginOK",
+      "avatar": null,
+      "role": "USER"
+    },
+    "expiresIn": "7 days"
+  }
+}
+---
+{
+  "test": "5_login_wrong_password",
+  "status": 401,
+  "body": {
+    "error": true,
+    "message": "// 访问拒绝",
+    "details": "认证失败 - 密码错误"
+  }
+}
+---
+{
+  "test": "6_login_nonexistent",
+  "status": 401,
+  "body": {
+    "error": true,
+    "message": "// 访问拒绝",
+    "details": "认证失败 - 用户不存在"
+  }
+}
+---

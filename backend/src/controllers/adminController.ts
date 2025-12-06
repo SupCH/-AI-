@@ -102,10 +102,13 @@ export const adminController = {
             const { title, slug, content, excerpt, coverImage, published, isPublic, tagIds } = req.body
             const authorId = req.userId!
 
+            // 如果没有提供 slug，则根据标题生成一个简单的 slug
+            const generatedSlug = slug || (title ? `${title.toLowerCase().replace(/\s+/g, '-')}-${Date.now().toString().slice(-6)}` : `post-${Date.now()}`)
+
             const post = await prisma.post.create({
                 data: {
                     title,
-                    slug,
+                    slug: generatedSlug,
                     content,
                     excerpt,
                     coverImage,
@@ -426,6 +429,43 @@ export const adminController = {
         try {
             if (!req.file) {
                 return res.status(400).json({ error: '请上传文件' })
+            }
+
+            // 如果是图片，进行优化
+            if (req.file.mimetype.startsWith('image/')) {
+                try {
+                    const { optimizeImage } = await import('../utils/imageOptimizer.js')
+                    const fs = await import('fs/promises')
+                    const path = await import('path')
+
+                    // 读取原始文件
+                    const originalPath = req.file.path
+                    const buffer = await fs.readFile(originalPath)
+
+                    // 优化图片
+                    const optimizedBuffer = await optimizeImage(buffer)
+
+                    // 生成新的文件名 (.webp)
+                    const dir = path.dirname(originalPath)
+                    const name = path.parse(originalPath).name
+                    const newFilename = `${name}.webp`
+                    const newPath = path.join(dir, newFilename)
+
+                    // 写入优化后的文件
+                    await fs.writeFile(newPath, optimizedBuffer)
+
+                    // 删除原始文件 (如果文件名不同)
+                    if (originalPath !== newPath) {
+                        await fs.unlink(originalPath).catch(err => console.error('删除原图失败:', err))
+                    }
+
+                    // 更新 req.file 信息以便返回正确的 URL
+                    req.file.filename = newFilename
+                    req.file.path = newPath
+                } catch (err) {
+                    console.error('图片优化失败，将使用原图:', err)
+                    // 失败时不做处理，直接返回原图
+                }
             }
 
             const url = `/uploads/${req.file.filename}`

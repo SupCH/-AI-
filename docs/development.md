@@ -155,7 +155,10 @@ backend/prisma/
 2. **注册路由** (`backend/src/routes/index.ts`)
 3. **添加验证** (使用 express-validator)
 4. **更新前端 API** (`frontend/src/services/api.ts`)
-5. **更新文档** (`docs/api.md`)
+5. **添加自动化测试**
+   - 创建或更新 `backend/src/tests/xxx.test.ts`
+   - 运行 `运行测试.bat` 确保测试通过 (PASS)
+6. **更新文档** (`docs/api.md`)
 
 ### 响应格式
 
