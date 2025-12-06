@@ -125,6 +125,51 @@ function PostDetail() {
         })
     }, [post, copyCode])
 
+    // 图片懒加载
+    useEffect(() => {
+        if (!contentRef.current || !post) return
+
+        const images = contentRef.current.querySelectorAll('img')
+
+        // 使用 Intersection Observer 实现懒加载
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target as HTMLImageElement
+                    const src = img.dataset.src
+
+                    if (src) {
+                        img.src = src
+                        img.removeAttribute('data-src')
+                        img.classList.add('loaded')
+                    }
+
+                    observer.unobserve(img)
+                }
+            })
+        }, {
+            rootMargin: '100px 0px', // 提前100px开始加载
+            threshold: 0.1
+        })
+
+        images.forEach(img => {
+            const imgElement = img as HTMLImageElement
+
+            // 如果图片有 src，转换为懒加载模式
+            if (imgElement.src && !imgElement.dataset.src) {
+                imgElement.dataset.src = imgElement.src
+                imgElement.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"%3E%3Crect fill="%23f0f0f0" width="400" height="300"/%3E%3Ctext fill="%23888" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-family="Arial"%3E加载中...%3C/text%3E%3C/svg%3E'
+                imgElement.classList.add('lazy-image')
+            }
+
+            imageObserver.observe(imgElement)
+        })
+
+        return () => {
+            imageObserver.disconnect()
+        }
+    }, [post])
+
     const handleSubmitComment = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!post || !commentContent.trim()) return
