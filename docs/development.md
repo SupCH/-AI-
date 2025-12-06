@@ -187,25 +187,27 @@ if (!result) {
 
 ---
 
-## Git 提交规范
+## Git 提交规范 (SupCH Standard)
+详细指南请参考 `docs/git-guide.md`。本项目使用严格的提交格式：
 
-使用语义化提交信息：
-
-```
-feat: 添加新功能
-fix: 修复 bug
-docs: 更新文档
-style: 代码格式调整
-refactor: 重构代码
-test: 添加测试
-chore: 构建/配置变更
+**格式模板**：
+```bash
+git commit -m "type(scope): 简短描述" -m "- ✨ 核心功能: 详细描述" -m "- 🐛 修复问题: 详细描述"
 ```
 
-示例：
-```
-feat: 添加文章评论功能
-fix: 修复登录页面样式问题
-docs: 更新 API 文档
+**Type 说明**：
+- `feat` (✨): 新功能
+- `fix` (🐛): Bug 修复
+- `docs` (📚): 文档
+- `style` (💄): 样式/格式
+- `refactor` (♻️): 重构
+- `perf` (⚡️): 性能
+- `test` (✅): 测试
+- `chore` (🔧): 工具/构建
+
+**示例**：
+```bash
+git commit -m "feat(core): 发布分页系统" -m "- ✨ 首页支持无限加载" -m "- 🔧 后台支持数字分页"
 ```
 
 ---
