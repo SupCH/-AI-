@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getAdminPost, createPost, updatePost, getTags, createTag, getPostVersions, getPostVersion, rollbackPostVersion } from '../../services/api'
+import { marked } from 'marked'
 import './PostEditor.css'
 
 interface Tag {
@@ -64,6 +65,9 @@ function PostEditor() {
     const [loadingVersions, setLoadingVersions] = useState(false)
     const [selectedVersion, setSelectedVersion] = useState<any>(null)
     const [showVersionPreview, setShowVersionPreview] = useState(false)
+
+    // 预览模式状态
+    const [previewMode, setPreviewMode] = useState<'edit' | 'split' | 'preview'>('split')
 
     const autoSaveTimer = useRef<NodeJS.Timeout | null>(null)
     const isInitialLoad = useRef(true)
@@ -469,17 +473,62 @@ function PostEditor() {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="content">内容 (支持 HTML)</label>
-                        <textarea
-                            id="content"
-                            className="form-input content-textarea"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            placeholder="在此输入文章内容..."
-                            rows={20}
-                            required
-                        />
+                    <div className="form-group content-group">
+                        <div className="content-header">
+                            <label htmlFor="content">内容 (支持 Markdown)</label>
+                            <div className="preview-toggle">
+                                <button
+                                    type="button"
+                                    className={`toggle-btn ${previewMode === 'edit' ? 'active' : ''}`}
+                                    onClick={() => setPreviewMode('edit')}
+                                    title="仅编辑"
+                                >
+                                    ✏️ 编辑
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`toggle-btn ${previewMode === 'split' ? 'active' : ''}`}
+                                    onClick={() => setPreviewMode('split')}
+                                    title="分栏视图"
+                                >
+                                    📐 分栏
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`toggle-btn ${previewMode === 'preview' ? 'active' : ''}`}
+                                    onClick={() => setPreviewMode('preview')}
+                                    title="仅预览"
+                                >
+                                    👁️ 预览
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className={`content-editor-container ${previewMode}`}>
+                            {previewMode !== 'preview' && (
+                                <div className="editor-pane">
+                                    <textarea
+                                        id="content"
+                                        className="form-input content-textarea"
+                                        value={content}
+                                        onChange={(e) => setContent(e.target.value)}
+                                        placeholder="在此输入 Markdown 内容..."
+                                        required
+                                    />
+                                </div>
+                            )}
+                            {previewMode !== 'edit' && (
+                                <div className="preview-pane">
+                                    <div className="preview-label">预览</div>
+                                    <div
+                                        className="preview-content post-content"
+                                        dangerouslySetInnerHTML={{
+                                            __html: useMemo(() => marked.parse(content || ''), [content]) as string
+                                        }}
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
