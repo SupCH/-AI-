@@ -4,6 +4,7 @@ import cors from 'cors'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import routes from './routes/index.js'
+import helmet from 'helmet'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -28,6 +29,10 @@ const BANNER = `
 `
 
 // 中间件
+app.use(helmet({
+    contentSecurityPolicy: false, // 暂时关闭 CSP 以免影响前端静态资源加载
+    crossOriginResourcePolicy: { policy: "cross-origin" } // 允许跨域加载资源（图片等）
+}))
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
