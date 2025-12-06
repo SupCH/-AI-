@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getAdminPost, createPost, updatePost, getTags, createTag } from '../../services/api'
 import './PostEditor.css'
@@ -8,6 +8,20 @@ interface Tag {
     name: string
     slug: string
 }
+
+interface DraftData {
+    title: string
+    slug: string
+    content: string
+    excerpt: string
+    coverImage: string
+    isPublic: boolean
+    selectedTags: number[]
+    savedAt: number
+}
+
+const DRAFT_KEY = 'post_editor_draft'
+const AUTO_SAVE_INTERVAL = 30000 // 30秒自动保存
 
 function PostEditor() {
     const { id } = useParams<{ id: string }>()
@@ -27,6 +41,142 @@ function PostEditor() {
     const [creatingTag, setCreatingTag] = useState(false)
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
+
+    // 自动保存相关状态
+    const [lastSaved, setLastSaved] = useState<Date | null>(null)
+    const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+    const [showDraftPrompt, setShowDraftPrompt] = useState(false)
+    const [draftData, setDraftData] = useState<DraftData | null>(null)
+
+    const autoSaveTimer = useRef<NodeJS.Timeout | null>(null)
+    const isInitialLoad = useRef(true)
+
+    // 生成草稿存储键
+    const getDraftKey = useCallback(() => {
+        return isEditing ? `${DRAFT_KEY}_${id}` : `${DRAFT_KEY}_new`
+    }, [isEditing, id])
+
+    // 保存草稿到本地存储
+    const saveDraft = useCallback(() => {
+        if (!title && !content) return
+
+        const draft: DraftData = {
+            title,
+            slug,
+            content,
+            excerpt,
+            coverImage,
+            isPublic,
+            selectedTags,
+            savedAt: Date.now()
+        }
+
+        try {
+            localStorage.setItem(getDraftKey(), JSON.stringify(draft))
+            setLastSaved(new Date())
+            setAutoSaveStatus('saved')
+            setHasUnsavedChanges(false)
+
+            // 3秒后恢复状态
+            setTimeout(() => setAutoSaveStatus('idle'), 3000)
+        } catch (error) {
+            console.error('保存草稿失败:', error)
+            setAutoSaveStatus('error')
+        }
+    }, [title, slug, content, excerpt, coverImage, isPublic, selectedTags, getDraftKey])
+
+    // 加载草稿
+    const loadDraft = useCallback(() => {
+        try {
+            const savedDraft = localStorage.getItem(getDraftKey())
+            if (savedDraft) {
+                const draft: DraftData = JSON.parse(savedDraft)
+                setDraftData(draft)
+                return draft
+            }
+        } catch (error) {
+            console.error('加载草稿失败:', error)
+        }
+        return null
+    }, [getDraftKey])
+
+    // 应用草稿数据
+    const applyDraft = useCallback((draft: DraftData) => {
+        setTitle(draft.title)
+        setSlug(draft.slug)
+        setContent(draft.content)
+        setExcerpt(draft.excerpt)
+        setCoverImage(draft.coverImage)
+        setIsPublic(draft.isPublic)
+        setSelectedTags(draft.selectedTags)
+        setShowDraftPrompt(false)
+        setDraftData(null)
+    }, [])
+
+    // 清除草稿
+    const clearDraft = useCallback(() => {
+        localStorage.removeItem(getDraftKey())
+        setShowDraftPrompt(false)
+        setDraftData(null)
+    }, [getDraftKey])
+
+    // 初始化时检查是否有草稿
+    useEffect(() => {
+        if (!isEditing && isInitialLoad.current) {
+            const draft = loadDraft()
+            if (draft && draft.savedAt > Date.now() - 7 * 24 * 60 * 60 * 1000) { // 7天内的草稿
+                setShowDraftPrompt(true)
+            }
+        }
+    }, [isEditing, loadDraft])
+
+    // 内容变化时标记未保存
+    useEffect(() => {
+        if (isInitialLoad.current) return
+        setHasUnsavedChanges(true)
+    }, [title, slug, content, excerpt, coverImage, isPublic, selectedTags])
+
+    // 自动保存定时器
+    useEffect(() => {
+        if (isInitialLoad.current) {
+            isInitialLoad.current = false
+            return
+        }
+
+        // 清除之前的定时器
+        if (autoSaveTimer.current) {
+            clearTimeout(autoSaveTimer.current)
+        }
+
+        // 设置新的自动保存定时器
+        if (hasUnsavedChanges && (title || content)) {
+            autoSaveTimer.current = setTimeout(() => {
+                setAutoSaveStatus('saving')
+                saveDraft()
+            }, AUTO_SAVE_INTERVAL)
+        }
+
+        return () => {
+            if (autoSaveTimer.current) {
+                clearTimeout(autoSaveTimer.current)
+            }
+        }
+    }, [hasUnsavedChanges, title, content, saveDraft])
+
+    // 页面离开前提示
+    useEffect(() => {
+        const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+            if (hasUnsavedChanges) {
+                saveDraft() // 离开前保存
+                e.preventDefault()
+                e.returnValue = ''
+            }
+        }
+
+        window.addEventListener('beforeunload', handleBeforeUnload)
+        return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+    }, [hasUnsavedChanges, saveDraft])
 
     useEffect(() => {
         fetchTags()
@@ -57,6 +207,7 @@ function PostEditor() {
             setPublished(post.published)
             setIsPublic(post.isPublic !== undefined ? post.isPublic : true)
             setSelectedTags(post.tags.map((t: Tag) => t.id))
+            isInitialLoad.current = false
         } catch (error) {
             console.error('获取文章失败:', error)
         } finally {
@@ -96,7 +247,6 @@ function PostEditor() {
             setSelectedTags(prev => [...prev, newTag.id])
             setNewTagName('')
         } catch (error: any) {
-            // 如果标签已存在，尝试从返回数据中获取并选中
             if (error.response?.data?.tag) {
                 const existingTag = error.response.data.tag
                 if (!selectedTags.includes(existingTag.id)) {
@@ -107,6 +257,12 @@ function PostEditor() {
         } finally {
             setCreatingTag(false)
         }
+    }
+
+    // 手动保存草稿
+    const handleManualSave = () => {
+        setAutoSaveStatus('saving')
+        saveDraft()
     }
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -130,12 +286,19 @@ function PostEditor() {
             } else {
                 await createPost(postData)
             }
+            // 成功提交后清除草稿
+            clearDraft()
             navigate('/admin/posts')
         } catch (error) {
             console.error('保存失败:', error)
         } finally {
             setSaving(false)
         }
+    }
+
+    // 格式化保存时间
+    const formatSaveTime = (date: Date) => {
+        return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     }
 
     if (loading) {
@@ -148,10 +311,60 @@ function PostEditor() {
 
     return (
         <div className="post-editor">
+            {/* 草稿恢复提示 */}
+            {showDraftPrompt && draftData && (
+                <div className="draft-prompt">
+                    <div className="draft-prompt-content">
+                        <p>
+                            <strong>发现未保存的草稿</strong>
+                            <span className="draft-time">
+                                (保存于 {new Date(draftData.savedAt).toLocaleString('zh-CN')})
+                            </span>
+                        </p>
+                        <div className="draft-actions">
+                            <button className="btn btn-primary" onClick={() => applyDraft(draftData)}>
+                                恢复草稿
+                            </button>
+                            <button className="btn btn-secondary" onClick={clearDraft}>
+                                丢弃
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <header className="editor-header">
                 <h1 className="editor-title">
                     <span className="title-prefix">&gt;_</span> {isEditing ? '编辑文章' : '新建文章'}
                 </h1>
+
+                {/* 自动保存状态指示器 */}
+                <div className="auto-save-status">
+                    {autoSaveStatus === 'saving' && (
+                        <span className="save-indicator saving">⟳ 正在保存...</span>
+                    )}
+                    {autoSaveStatus === 'saved' && (
+                        <span className="save-indicator saved">✓ 已保存草稿</span>
+                    )}
+                    {autoSaveStatus === 'error' && (
+                        <span className="save-indicator error">✕ 保存失败</span>
+                    )}
+                    {autoSaveStatus === 'idle' && hasUnsavedChanges && (
+                        <span className="save-indicator unsaved">● 未保存</span>
+                    )}
+                    {lastSaved && autoSaveStatus === 'idle' && !hasUnsavedChanges && (
+                        <span className="save-indicator idle">上次保存: {formatSaveTime(lastSaved)}</span>
+                    )}
+                    <button
+                        type="button"
+                        className="manual-save-btn"
+                        onClick={handleManualSave}
+                        disabled={!hasUnsavedChanges}
+                        title="手动保存草稿"
+                    >
+                        💾
+                    </button>
+                </div>
             </header>
 
             <form className="editor-form" onSubmit={handleSubmit}>
