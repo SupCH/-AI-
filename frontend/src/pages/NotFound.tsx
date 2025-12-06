@@ -25,14 +25,16 @@ function NotFound() {
 
     // 鼠标跟踪 + 自定义光标
     useEffect(() => {
-        const isFinePonter = window.matchMedia("(pointer: fine)").matches
+        const isTouchDevice = window.matchMedia("(pointer: coarse)").matches
+        if (isTouchDevice) return
+
         const cursorDot = cursorDotRef.current
         const cursorOutline = cursorOutlineRef.current
 
         const handleMouseMove = (e: MouseEvent) => {
             setMousePos({ x: e.clientX, y: e.clientY })
 
-            if (isFinePonter && cursorDot && cursorOutline) {
+            if (cursorDot && cursorOutline) {
                 cursorDot.style.left = `${e.clientX}px`
                 cursorDot.style.top = `${e.clientY}px`
                 cursorOutline.animate({
@@ -47,13 +49,11 @@ function NotFound() {
 
         window.addEventListener('mousemove', handleMouseMove)
 
-        if (isFinePonter) {
-            const hoverTriggers = document.querySelectorAll('.hover-trigger, a, button')
-            hoverTriggers.forEach(trigger => {
-                trigger.addEventListener('mouseenter', handleMouseEnter)
-                trigger.addEventListener('mouseleave', handleMouseLeave)
-            })
-        }
+        const hoverTriggers = document.querySelectorAll('.hover-trigger, a, button')
+        hoverTriggers.forEach(trigger => {
+            trigger.addEventListener('mouseenter', handleMouseEnter)
+            trigger.addEventListener('mouseleave', handleMouseLeave)
+        })
 
         return () => {
             window.removeEventListener('mousemove', handleMouseMove)

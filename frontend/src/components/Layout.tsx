@@ -13,9 +13,9 @@ function Layout({ isAdmin = false }: LayoutProps) {
     const cursorOutlineRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        // Only enable custom cursor on devices with fine pointer (mouse)
-        const isFinePonter = window.matchMedia("(pointer: fine)").matches
-        if (!isFinePonter) return
+        // 在触摸设备上禁用自定义光标
+        const isTouchDevice = window.matchMedia("(pointer: coarse)").matches
+        if (isTouchDevice) return
 
         const cursorDot = cursorDotRef.current
         const cursorOutline = cursorOutlineRef.current

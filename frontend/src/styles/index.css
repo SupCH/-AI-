@@ -55,7 +55,7 @@ body {
   background-color: var(--bg-gray);
   background-image: radial-gradient(var(--neo-black) 1px, transparent 1px);
   background-size: var(--bg-pattern-size) var(--bg-pattern-size);
-  cursor: none;
+  cursor: auto;
   transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
@@ -63,9 +63,10 @@ body {
   background-image: radial-gradient(var(--acid-green) 1px, transparent 1px);
 }
 
-@media (pointer: coarse) {
+/* 只在支持精确指针（鼠标）的设备上隐藏系统光标 */
+@media (pointer: fine) {
   body {
-    cursor: auto;
+    cursor: none;
   }
 }
 
@@ -376,12 +377,12 @@ h4 {
 }
 
 .hover-trigger {
-  cursor: none;
+  cursor: pointer;
 }
 
-@media (pointer: coarse) {
+@media (pointer: fine) {
   .hover-trigger {
-    cursor: pointer;
+    cursor: none;
   }
 }
 
